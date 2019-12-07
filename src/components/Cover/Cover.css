@@ -1,0 +1,70 @@
+
+
+.cover {
+  /* background-color: black; */
+  --header_background: none !important;
+  height: 100%;
+  min-height: 154px;
+  color: white;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 20px;
+  padding: 0;
+  margin-top: calc(0px - var(--panelheader_height_ios) - 21px);
+  padding-top: 21px;
+  position: relative;
+}
+
+.panelImage {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.coverPhoto {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.5;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.star {
+  font-size: 24px;
+  display: inline-block;
+  fill: white;
+}
+
+.amountContainer {
+  position: absolute;
+  z-index: 1000;
+  bottom: 5px;
+  left: 15px;
+  display: flex;
+  align-items: baseline;
+  margin: 0 0 24px 2px;
+}
+.amount {
+  color: white;
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 48px;
+  margin: 0 10px;
+}
+.amount > span {
+  position: relative;
+}
+
+.cover h1 {
+  margin: 40px 0 20px 0;
+  font-family: 'Montserrat';
+}
+
+.coverContainer {
+  padding: 16px;
+}
+

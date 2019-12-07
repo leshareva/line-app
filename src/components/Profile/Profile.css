@@ -1,0 +1,51 @@
+.marketItem {
+  flex-shrink: 0;
+  width: 140px;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 12;
+  margin-right: 8px;
+}
+
+.logo {
+  position: absolute;
+  top: 37px;
+  left: 10px;
+}
+
+
+.cellNegative {
+  --text_primary: #770efd;
+  
+}
+.cellNegative svg {
+  fill: #770efd;
+}
+
+.Cell__aside, .Cell__description {
+  font-size: 13px;
+  font-family: "Montserrat";
+}
+
+.history .Cell__description {
+  --text_secondary: black;
+}
+
+.Cell__aside {
+  padding-top: 0;
+}
+
+.Cell__children {
+  font-weight: 600;
+  font-family: "Montserrat";
+  font-size: 16px;
+}
+
+
+
+.Cell__children .star svg {
+  width: 16px;
+  margin-bottom: -4px;
+}

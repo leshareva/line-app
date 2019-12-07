@@ -1,0 +1,67 @@
+
+
+.header {
+  --separator_alpha: none !important;
+  
+  --like_text_tint: #770efd !important;
+}
+
+
+
+:root {
+  --text_secondary: #96a4bd;
+  --header_background: none !important;
+  --icon_secondary: #D5DCE7;
+  --button_primary_background: #770EFD;
+}
+
+.Button--sz-m .Button__content {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.PanelHeader-bg {
+  display: none !important; }
+
+
+
+.Header--level-secondary .Header__content {
+  font-family: "Montserrat";
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 16px;
+  /* identical to box height */
+  letter-spacing: -0.078px;
+
+  /* Моно / Серый */
+  color: var(--text_secondary);
+}
+
+.Cell__description {
+  color: var(--text_secondary);
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.marketImage .Avatar__in img {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+
+.bottomBar {
+  height: 60px;
+  vertical-align: middle;
+  background-color: white;
+  width: 100vw;
+  text-align: center;
+  padding: 8px 16px;
+}
+
+.bottomBar .Button {
+  display: inline-block;
+}
+
+
+
