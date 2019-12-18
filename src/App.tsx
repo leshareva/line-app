@@ -79,7 +79,7 @@ class App extends React.Component<any, any> {
 
 			if (!sprintData) sprintData = await base.create({ 'Имя': `${user.first_name} ${user.last_name}`, [R_VK_ID]: user.id }, 'Участники')
 				.then(res => base.create({
-					"Баллы": 1,
+					"Баллы": 25,
 					"Профиль": [res.recID],
 					"Комментарий": "Первое начисление"
 				}, "Начисления: разминки"))
