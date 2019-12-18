@@ -1,11 +1,14 @@
 {
-  "name": "vk-mini",
+  "name": "line-app",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "homepage": "https://leshareva.github.io/line-app/",
   "scripts": {
-    "start": "cross-env PORT=8011 react-scripts start",
-    "build": "react-scripts build"
+    "start": "cross-env PORT=10888 react-scripts start",
+    "build": "react-scripts build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "keywords": [],
   "author": "",

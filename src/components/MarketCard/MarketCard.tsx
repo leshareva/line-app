@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Panel, View, Div, FixedLayout, Button, } from '@vkontakte/vkui';
+import { Panel, Div, FixedLayout, Button, } from '@vkontakte/vkui';
 import Cover from '../Cover/Cover';
 import "./MarketCard.css";
 import Linkify from 'react-linkify';
@@ -40,7 +40,7 @@ class MarketCard extends React.Component<any, any> {
                     
                 </Div>
                 <FixedLayout className="bottomBar" vertical="bottom">
-                    <Button size={'l'} stretched={true} component="a" href={url} >Поделиться</Button>
+                    <Button size={'l'} stretched={true} component="a" href={url} >Открыть в магазине</Button>
                 </FixedLayout>
             </Panel>
 

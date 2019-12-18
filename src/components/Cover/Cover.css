@@ -32,33 +32,6 @@
   position: relative;
 }
 
-.star {
-  font-size: 24px;
-  display: inline-block;
-  fill: white;
-}
-
-.amountContainer {
-  position: absolute;
-  z-index: 1000;
-  bottom: 5px;
-  left: 15px;
-  display: flex;
-  align-items: baseline;
-  margin: 0 0 24px 2px;
-}
-.amount {
-  color: white;
-  font-family: "Montserrat";
-  font-style: normal;
-  font-weight: 700;
-  font-size: 48px;
-  margin: 0 10px;
-}
-.amount > span {
-  position: relative;
-}
-
 .cover h1 {
   margin: 40px 0 20px 0;
   font-family: 'Montserrat';

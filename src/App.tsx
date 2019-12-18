@@ -1,6 +1,6 @@
 import React from 'react';
 import connect from '@vkontakte/vk-connect';
-import { Root, platform, ANDROID, View } from '@vkontakte/vkui';
+import { platform, ANDROID, View } from '@vkontakte/vkui';
 
 import { base } from './airtable/airtable';
 import { R_VK_ID, RUBRICS } from './airtable/constants';
@@ -60,7 +60,7 @@ class App extends React.Component<any, any> {
 		(osname === ANDROID) ? connect.send("VKWebAppSetViewSettings", { "status_bar_style": "light", "action_bar_color": "#000000" }) : connect.send("VKWebAppSetViewSettings", { "status_bar_style": "light", });
 		connect.send('VKWebAppGetUserInfo', {});
 		connect.sendPromise("VKWebAppGetAuthToken", { "app_id": VK_APP_ID, "scope": "market" });
-		
+
 	}
 
 	getItems = async () => {
@@ -85,23 +85,26 @@ class App extends React.Component<any, any> {
 				}, "Начисления: разминки"))
 			this.setState({ sprintData: sprintData })
 
-			let promises = RUBRICS.map(el =>
-				base.list(el, { filterByFormula: `{${R_VK_ID}} = ${this.state.fetchedUser.id}`, sort: [{ field: 'Датавремя', direction: 'desc' }], maxRecords: 10 })
-					.then(res => res.map(obj => {
-						obj.rubric = el;
-						return obj;
-					}))
-			)
+			let promises = RUBRICS
+				.map(el =>
+					base.list(el, { filterByFormula: `{${R_VK_ID}} = ${this.state.fetchedUser.id}`, sort: [{ field: 'Датавремя', direction: 'desc' }], maxRecords: 10 })
+						.then(res => res.map(obj => {
+							obj.rubric = el;
+							return obj;
+						}))
+				)
 
 			let rubrics = await base.list('Рубрики').catch(e => []);
-			rubrics = rubrics.map(obj => {
-				if (obj['Описание']) {
-					obj.desc = obj['Описание'].replace(/[*#|]/gs, '').slice(0, 100)
-					if (obj.desc.length < obj['Описание'].length) obj.desc = obj.desc + "…"
-				}
+			rubrics = rubrics
+				.filter(el => el['Опубликовано'])
+				.map(obj => {
+					if (obj['Описание']) {
+						obj.desc = obj['Описание'].replace(/[*#|]/gs, '').slice(0, 60)
+						if (obj.desc.length < obj['Описание'].length) obj.desc = obj.desc + "…"
+					}
 
-				return obj
-			})
+					return obj
+				})
 			this.setState({ rubrics: rubrics })
 
 			let result = await Promise.all(promises) as any[][]
@@ -154,13 +157,13 @@ class App extends React.Component<any, any> {
 		const route = e.currentTarget.dataset.to;
 		const meta = e.currentTarget.dataset.meta;
 		const parseMeta = meta ? JSON.parse(meta) : null
-		if(parseMeta) this.setState({meta: parseMeta })
+		if (parseMeta) this.setState({ meta: parseMeta })
 		if (route === 'rubric') {
 			console.log('Зачем сюда идем?')
 			let post = await this.getWallPost(parseMeta["ТэгЗадания"])
 			this.setState({ post: post })
 		}
-	
+
 		this.setState({ activeView: route })
 		// this.setLocation(route)
 	};

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Panel, Div, platform, Button, View, ANDROID, Spinner, PanelHeader, FixedLayout } from '@vkontakte/vkui';
+import { Panel, Div, platform, Button, ANDROID, FixedLayout } from '@vkontakte/vkui';
 
 
 import "./Rubric.css";
@@ -21,14 +21,11 @@ class Rubric extends React.Component<any, any> {
 	render() {
 
 		let {
-			id,
 			go,
 			rubric,
 			post
 		} = this.props
 
-		console.log(post)
-		console.log(rubric)
 		const getCover = () => {
 			if (!this.props.rubric) return
 			let post = this.props.post;
@@ -41,15 +38,16 @@ class Rubric extends React.Component<any, any> {
 		const osname = platform();
 
 
-		const cover = rubric['Обложка'][0];
+		const cover = () => rubric['Обложка'] ? `url(${rubric['Обложка'][0]['url']}) center/cover no-repeat` : '';
 		return (
 
 			<Panel id='rubric'>
 
 				<Navbar go={go} dataTo='profile'></Navbar>
 
-				<Cover background={`url(${cover['url']}) center/cover no-repeat`} height="fit-content">
+				<Cover background={cover()} height="fit-content">
 					<Div className="desc">
+						<h1>{rubric['Название']}</h1>
 						<ReactMarkdown source={rubric['Описание']} />
 					</Div>
 				</Cover>
@@ -68,8 +66,6 @@ class Rubric extends React.Component<any, any> {
 									{post.text}
 									<img src={getCover()} className="postCover" alt="postCover" />
 								</Div>
-
-
 							</div>
 						)
 					}
