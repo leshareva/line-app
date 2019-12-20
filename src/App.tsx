@@ -1,6 +1,6 @@
 import React from 'react';
 import connect from '@vkontakte/vk-connect';
-import { platform, ANDROID, View } from '@vkontakte/vkui';
+import { platform, ANDROID, View, ModalRoot, ModalCard } from '@vkontakte/vkui';
 
 import { base } from './airtable/airtable';
 import { R_VK_ID, RUBRICS } from './airtable/constants';
@@ -9,7 +9,7 @@ import splash from './img/splash.GIF';
 import '@vkontakte/vkui/dist/vkui.css';
 import "./main.css";
 
-import { VK_GROUP_ID, VK_APP_ID } from './constants';
+import { VK_GROUP_ID, VK_APP_ID, AMOUNT_TO_NEW_USER } from './constants';
 import Rubric from './components/Rubric/Rubric';
 import Profile from './components/Profile/Profile';
 import MarketCard from './components/MarketCard/MarketCard';
@@ -20,6 +20,12 @@ const splashLoader = <div style={{ width: '100%', height: '100%', backgroundColo
 
 const osname = platform();
 
+const blueBackground = {
+	backgroundColor: 'var(--accent)'
+};
+
+
+
 class App extends React.Component<any, any> {
 
 	constructor(props) {
@@ -27,6 +33,7 @@ class App extends React.Component<any, any> {
 
 		this.state = {
 			fetchedUser: null,
+			activeModal: null,
 			activeView: 'profile',
 			authToken: null,
 			isLoading: false,
@@ -34,7 +41,9 @@ class App extends React.Component<any, any> {
 			history: [],
 			rubrics: [],
 			sprintData: null,
-			meta: {}
+			meta: {},
+			modalHistory: []
+
 		};
 		this.getItems = this.getItems.bind(this)
 	}
@@ -67,6 +76,7 @@ class App extends React.Component<any, any> {
 
 	getItems = async () => {
 		this.setState({ isLoading: true })
+
 		if (this.state.authToken) {
 			let market = await this.callVKApi('market.get', { owner_id: -(VK_GROUP_ID), access_token: this.state.authToken })
 				.then((res: any) => res.response.items)
@@ -79,14 +89,20 @@ class App extends React.Component<any, any> {
 			let user = this.state.fetchedUser
 			let sprintData = await base.list('Участники', { filterByFormula: `{${R_VK_ID}} = ${this.state.fetchedUser.id}` }).then(res => res[0]);
 
-			if (!sprintData) sprintData = await base.create({ 'Имя': `${user.first_name} ${user.last_name}`, [R_VK_ID]: user.id }, 'Участники')
-				.then(res => base.create({
-					"Баллы": 25,
-					"Профиль": [res.recID],
-					"Комментарий": "Первое начисление"
-				}, "Начисления: разминки"))
-			this.setState({ sprintData: sprintData })
+			if (!sprintData) {
 
+				sprintData = await base.create({ 'Имя': `${user.first_name} ${user.last_name}`, [R_VK_ID]: user.id }, 'Участники')
+					.then(res => base.create({
+						"Баллы": AMOUNT_TO_NEW_USER,
+						"Профиль": [res.recID],
+						"Комментарий": "Первое начисление"
+					}, "Начисления: разминки"))
+
+				this.setActiveModal('amount')
+
+			}
+
+			this.setState({ sprintData: sprintData })
 			let promises = RUBRICS
 				.map(el =>
 					base.list(el, { filterByFormula: `{${R_VK_ID}} = ${this.state.fetchedUser.id}`, sort: [{ field: 'Датавремя', direction: 'desc' }], maxRecords: 10 })
@@ -124,10 +140,36 @@ class App extends React.Component<any, any> {
 						dateB = new Date(b['Датавремя'])
 					return dateB - dateA
 				})
+
+
 			this.setState({ history: history, isLoading: false })
+
 		}
 
 
+
+
+
+
+	};
+
+
+	setActiveModal(activeModal) {
+		activeModal = activeModal || null;
+		let modalHistory = this.state.modalHistory ? [...this.state.modalHistory] : [];
+
+		if (activeModal === null) {
+			modalHistory = [];
+		} else if (modalHistory.indexOf(activeModal) !== -1) {
+			modalHistory = modalHistory.splice(0, modalHistory.indexOf(activeModal) + 1);
+		} else {
+			modalHistory.push(activeModal);
+		}
+
+		this.setState({
+			activeModal,
+			modalHistory
+		});
 	};
 
 
@@ -162,7 +204,6 @@ class App extends React.Component<any, any> {
 		const parseMeta = meta ? JSON.parse(meta) : null
 		if (parseMeta) this.setState({ meta: parseMeta })
 		if (route === 'rubric') {
-			console.log('Зачем сюда идем?')
 			let post = await this.getWallPost(parseMeta["ТэгЗадания"])
 			this.setState({ post: post })
 		}
@@ -193,17 +234,39 @@ class App extends React.Component<any, any> {
 	}
 
 
+
+
 	render() {
 		const { fetchedUser, isLoading, history, sprintData, rubrics, items } = this.state;
 		if (!fetchedUser || isLoading) return splashLoader;
+		let modal = (<ModalRoot activeModal={this.state.activeModal}>
+			<ModalCard
+				id='amount'
+				onClose={() => this.setActiveModal(null)}
+				title="Отправляйте деньги друзьям, используя банковскую карту"
+				caption="Номер карты получателя не нужен — он сам решит, куда зачислить средства."
+				actions={[{
+					title: 'Попробовать',
+					type: 'primary',
+					action: () => {
+						console.log('Привет, мир!')
+					}
+				}]}
+			>
+
+			</ModalCard>
+		</ModalRoot>)
 
 		return (
-			<View activePanel={this.state.activeView}>
-				<Profile id="profile" market={items} rubrics={rubrics} go={this.go} fetchedUser={this.state.fetchedUser} history={history} sprintData={sprintData} ></Profile>
+			<View activePanel={this.state.activeView} modal={modal}>
+
+				<Profile id="profile" snackbar={this.state.snackbar} market={items} rubrics={rubrics} go={this.go} fetchedUser={this.state.fetchedUser} history={history} sprintData={sprintData} ></Profile>
 				{/* <Rubric id="rubric" fetchedUser={this.state.fetchedUser} rubric={this.state.meta} post={this.state.post} go={this.go}></Rubric> */}
 				<Rubric id="rubric" fetchedUser={this.state.fetchedUser} rubric={this.state.meta} post={this.state.post} go={this.go}></Rubric>
 				<MarketCard id="marketItem" go={this.go} item={this.state.meta}></MarketCard>
+
 			</View >
+
 		)
 	}
 }

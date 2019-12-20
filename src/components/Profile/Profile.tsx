@@ -12,7 +12,6 @@ import { star, logo } from '../../icons';
 
 
 
-
 class Profile extends React.Component<any, any> {
 
 
@@ -41,7 +40,7 @@ class Profile extends React.Component<any, any> {
 
 
         return history.map((el, i) => {
-            return <Cell key={i} asideContent={el.rubric} className={(() => (el['Баллы']) < 0 ? "cellNegative" : "historyCell")()} description={(() => {
+            return <Cell key={i} asideContent={el.rubric}  className={(() => (el['Баллы']) < 0 ? "cellNegative" : "historyCell")()} description={(() => {
                 return parseDate(el['Датавремя'])
             })()
             } ><span>{el['Баллы']}</span><span className="star">{star('#000000')}</span>
@@ -50,6 +49,8 @@ class Profile extends React.Component<any, any> {
         })
     }
 
+
+    
 
     render() {
 
@@ -76,10 +77,12 @@ class Profile extends React.Component<any, any> {
             history,
             go,
             rubrics,
-            market
+            market,
+            snackbar
         } = this.props
-
+    
         let cellHistory = this.parseHistory(history)
+        if(!fetchedUser) this.setState({isLoading: true})
         return (
             // <View activePanel="profile" id="profile" className="header panelImage" >
             <Panel id='profile'  >
@@ -135,7 +138,7 @@ class Profile extends React.Component<any, any> {
                     }
                 })()}
 
-
+                {snackbar}
             </Panel>
             // </View>
         );
