@@ -13,6 +13,8 @@ import { VK_GROUP_ID, VK_APP_ID } from './constants';
 import Rubric from './components/Rubric/Rubric';
 import Profile from './components/Profile/Profile';
 import MarketCard from './components/MarketCard/MarketCard';
+import * as Typograf from 'typograf';
+const tp = new Typograf({ locale: ['ru', 'en-US'] });
 
 const splashLoader = <div style={{ width: '100%', height: '100%', backgroundColor: '#770EFD' }}><img src={splash} style={{ width: '100%', height: '100%' }} alt="loading..." /></div>;
 
@@ -99,6 +101,7 @@ class App extends React.Component<any, any> {
 				.filter(el => el['Опубликовано'])
 				.map(obj => {
 					if (obj['Описание']) {
+						obj['Описание'] = tp.execute(obj['Описание']);
 						obj.desc = obj['Описание'].replace(/[*#|]/gs, '').slice(0, 60)
 						if (obj.desc.length < obj['Описание'].length) obj.desc = obj.desc + "…"
 					}
@@ -180,7 +183,11 @@ class App extends React.Component<any, any> {
 				access_token: this.state.authToken,
 				v: '5.103'
 			}
-		}).then((res: any) => res.response.items[0]).catch(_ => null)
+		}).then((res: any) => {
+			let post = res.response.items[0];
+			post.text = tp.execute(post.text);
+			return post;
+		}).catch(_ => null)
 
 
 	}
