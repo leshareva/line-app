@@ -1,6 +1,6 @@
 import React from 'react';
 import connect from '@vkontakte/vk-connect';
-import { platform, ANDROID, View, ModalRoot, ModalCard } from '@vkontakte/vkui';
+import { platform, ANDROID, View, Snackbar, InfoRow, Progress } from '@vkontakte/vkui';
 
 import { base } from './airtable/airtable';
 import { R_VK_ID, RUBRICS } from './airtable/constants';
@@ -20,11 +20,6 @@ const splashLoader = <div style={{ width: '100%', height: '100%', backgroundColo
 
 const osname = platform();
 
-const blueBackground = {
-	backgroundColor: 'var(--accent)'
-};
-
-
 
 class App extends React.Component<any, any> {
 
@@ -33,7 +28,7 @@ class App extends React.Component<any, any> {
 
 		this.state = {
 			fetchedUser: null,
-			activeModal: null,
+
 			activeView: 'profile',
 			authToken: null,
 			isLoading: false,
@@ -42,10 +37,11 @@ class App extends React.Component<any, any> {
 			rubrics: [],
 			sprintData: null,
 			meta: {},
-			modalHistory: []
+			snackbar: null
 
 		};
-		this.getItems = this.getItems.bind(this)
+		this.getItems = this.getItems.bind(this);
+		this.openBase = this.openBase.bind(this);
 	}
 
 	async componentDidMount() {
@@ -74,6 +70,34 @@ class App extends React.Component<any, any> {
 
 	}
 
+
+	openBase() {
+
+		if (this.state.snackbar) return;
+
+		let exp = this.state.sprintData['Опыт'];
+		let sl = exp.toString()
+		let percent = (sl.length > 3) ? +sl.slice(sl.length - 3) : +sl
+		this.setState({
+			snackbar:
+				<Snackbar
+					className="snackbar"
+					layout="vertical"
+					onClose={() => {
+						this.setState({ snackbar: null })
+						return {}
+					}}
+				>
+
+					<InfoRow title={`${percent} ед. опыта. Осталось: ${1000 - percent} ед.`}>
+						<Progress value={percent * 0.1} style={{width: '100%'}}/>
+					</InfoRow>
+					<a href="https://vk.com/@lean.school-user-level" target="_blank" rel="noopener noreferrer">Зачем нужен уровень?</a>
+
+				</Snackbar>
+		});
+	}
+
 	getItems = async () => {
 		this.setState({ isLoading: true })
 
@@ -98,7 +122,7 @@ class App extends React.Component<any, any> {
 						"Комментарий": "Первое начисление"
 					}, "Начисления: разминки"))
 
-				this.setActiveModal('amount')
+				// this.setActiveModal('amount')
 
 			}
 
@@ -146,31 +170,10 @@ class App extends React.Component<any, any> {
 
 		}
 
-
-
-
-
-
 	};
 
 
-	setActiveModal(activeModal) {
-		activeModal = activeModal || null;
-		let modalHistory = this.state.modalHistory ? [...this.state.modalHistory] : [];
 
-		if (activeModal === null) {
-			modalHistory = [];
-		} else if (modalHistory.indexOf(activeModal) !== -1) {
-			modalHistory = modalHistory.splice(0, modalHistory.indexOf(activeModal) + 1);
-		} else {
-			modalHistory.push(activeModal);
-		}
-
-		this.setState({
-			activeModal,
-			modalHistory
-		});
-	};
 
 
 
@@ -239,29 +242,11 @@ class App extends React.Component<any, any> {
 	render() {
 		const { fetchedUser, isLoading, history, sprintData, rubrics, items } = this.state;
 		if (!fetchedUser || isLoading) return splashLoader;
-		let modal = (<ModalRoot activeModal={this.state.activeModal}>
-			<ModalCard
-				id='amount'
-				onClose={() => this.setActiveModal(null)}
-				title="Отправляйте деньги друзьям, используя банковскую карту"
-				caption="Номер карты получателя не нужен — он сам решит, куда зачислить средства."
-				actions={[{
-					title: 'Попробовать',
-					type: 'primary',
-					action: () => {
-						console.log('Привет, мир!')
-					}
-				}]}
-			>
-
-			</ModalCard>
-		</ModalRoot>)
 
 		return (
-			<View activePanel={this.state.activeView} modal={modal}>
+			<View activePanel={this.state.activeView}>
 
-				<Profile id="profile" snackbar={this.state.snackbar} market={items} rubrics={rubrics} go={this.go} fetchedUser={this.state.fetchedUser} history={history} sprintData={sprintData} ></Profile>
-				{/* <Rubric id="rubric" fetchedUser={this.state.fetchedUser} rubric={this.state.meta} post={this.state.post} go={this.go}></Rubric> */}
+				<Profile id="profile" snackbar={this.state.snackbar} openSnackbar={this.openBase} market={items} rubrics={rubrics} go={this.go} fetchedUser={this.state.fetchedUser} history={history} sprintData={sprintData} ></Profile>
 				<Rubric id="rubric" fetchedUser={this.state.fetchedUser} rubric={this.state.meta} post={this.state.post} go={this.go}></Rubric>
 				<MarketCard id="marketItem" go={this.go} item={this.state.meta}></MarketCard>
 

@@ -1,0 +1,23 @@
+.levelBubble {
+  position: absolute;
+  width: 26px;
+  height: 22px;
+  padding: 5px 0 0 0;
+  background: var(--button_primary_background);
+  border-radius: 3px;
+  text-align: center;
+  color: white;
+}
+
+.levelBubble:after {
+  content: "";
+  position: absolute;
+  border-style: solid;
+  border-width: 8px 13px 0;
+  border-color: var(--button_primary_background) transparent;
+  display: block;
+  width: 0;
+  z-index: 1;
+  bottom: -7px;
+  left: 0px;
+}

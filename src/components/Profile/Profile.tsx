@@ -5,7 +5,7 @@ import Icon24BrowserForward from '@vkontakte/icons/dist/24/browser_forward';
 import "./Profile.css";
 import Cover from '../Cover/Cover';
 import { star, logo } from '../../icons';
-
+import LevelBubble from '../LevelBubble/LevelBubble';
 
 
 
@@ -14,7 +14,7 @@ import { star, logo } from '../../icons';
 
 class Profile extends React.Component<any, any> {
 
-
+  
 
     private parseHistory = (history: any[]) => {
 
@@ -29,18 +29,19 @@ class Profile extends React.Component<any, any> {
                 'июля',
                 'августа',
                 'сентября',
+                'октября',
                 'ноября',
                 'декабря',
             ];
             let date = new Date(iso)
-            let month = arr[+date.getMonth() - 1];
+            let month = arr[+date.getMonth()];
             const result = `${date.getDate()} ${month} ${date.getFullYear()}, ${date.toLocaleTimeString().replace(/(.*:.*?):\d+/gs, '$1')}`
             return result
         }
 
 
         return history.map((el, i) => {
-            return <Cell key={i} asideContent={el.rubric}  className={(() => (el['Баллы']) < 0 ? "cellNegative" : "historyCell")()} description={(() => {
+            return <Cell key={i} asideContent={el.rubric} className={(() => (el['Баллы']) < 0 ? "cellNegative" : "historyCell")()} description={(() => {
                 return parseDate(el['Датавремя'])
             })()
             } ><span>{el['Баллы']}</span><span className="star">{star('#000000')}</span>
@@ -52,23 +53,10 @@ class Profile extends React.Component<any, any> {
 
     
 
+
+
     render() {
-
-
-        const plural = (titles) => {
-            var cases = [2, 0, 1, 1, 1, 2];
-            return function (number) {
-                number = Math.abs(number);
-                let c =
-                    (number % 100 > 4 && number % 100 < 20) ? 2 :
-                        cases[(number % 10 < 5) ? number % 10 : 5];
-                return titles[c];
-            }
-        }
-
-        var point = plural(['балл', 'балла', 'баллов']);
-
-
+       
 
 
         let {
@@ -78,15 +66,17 @@ class Profile extends React.Component<any, any> {
             go,
             rubrics,
             market,
+            openSnackbar,
             snackbar
         } = this.props
-    
+        
         let cellHistory = this.parseHistory(history)
-        if(!fetchedUser) this.setState({isLoading: true})
+        
         return (
-            // <View activePanel="profile" id="profile" className="header panelImage" >
+           
             <Panel id='profile'  >
                 <PanelHeader></PanelHeader>
+
                 <Cover fetchedUser={fetchedUser} sprintData={sprintData} height="184px">
                     <div className="logo" style={{ top: (platform() === ANDROID) ? '25px' : '37px' }}>{logo}</div>
                     <div className="amountContainer">
@@ -94,11 +84,14 @@ class Profile extends React.Component<any, any> {
                         <div className="amountWrapper">
                             <span className="amount">{sprintData['Баланс']}</span>
                             <span className="star">{star('#ffffff')}</span>
-                            <br />{point(+sprintData['Баланс'])}
+                            <br />
+                            <a href="https://vk.com/@lean.school-kak-zarabotat-v-line-bally-i-zachem" target="_blank" rel="noopener noreferrer">Как и зачем зарабатывать баллы?</a>
+                            <LevelBubble className="levelBubble" action={openSnackbar}>{Math.round(sprintData['Уровень'])}</LevelBubble>
                         </div>
 
                     </div>
                 </Cover>
+
 
                 <Group title="Рубрики" >
                     <List>
@@ -140,7 +133,7 @@ class Profile extends React.Component<any, any> {
 
                 {snackbar}
             </Panel>
-            // </View>
+            
         );
     }
 }

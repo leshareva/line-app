@@ -1,30 +1,24 @@
-
-
 .header {
   --separator_alpha: none !important;
-  
   --like_text_tint: #770efd !important;
 }
-
-
 
 :root {
   --text_secondary: #96a4bd;
   --header_background: none !important;
-  --icon_secondary: #D5DCE7;
-  --button_primary_background: #770EFD;
+  --icon_secondary: #d5dce7;
+  --button_primary_background: #770efd;
 }
 
 .Button--sz-m .Button__content {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: bold;
   font-size: 16px;
 }
 
 .PanelHeader-bg {
-  display: none !important; }
-
-
+  display: none !important;
+}
 
 .Header--level-secondary .Header__content {
   font-family: "Montserrat";
@@ -49,7 +43,6 @@
   height: 100% !important;
 }
 
-
 .bottomBar {
   height: 60px;
   vertical-align: middle;
@@ -67,5 +60,10 @@
   display: inline-block;
 }
 
-
-
+.snackbar a {
+  color: var(--button_primary_background);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 14px;
+  font-weight: bold;
+}

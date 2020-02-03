@@ -37,6 +37,13 @@
   font-family: 'Montserrat';
 }
 
+.cover a {
+  color: white;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255, 255, 0.2);
+  font-size: 12px;
+}
+
 .coverContainer {
   padding: 16px;
 }

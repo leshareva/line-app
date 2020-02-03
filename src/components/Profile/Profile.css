@@ -15,16 +15,23 @@
   left: 10px;
 }
 
-
 .cellNegative {
   --text_primary: #770efd;
-  
 }
+
 .cellNegative svg {
   fill: #770efd;
 }
 
-.Cell__aside, .Cell__description {
+.levelBubble {
+  position: absolute;
+  left: -3px;
+  z-index: 1000;
+  bottom: 48px;
+}
+
+.Cell__aside,
+.Cell__description {
   font-size: 13px;
   font-family: "Montserrat";
 }
@@ -43,13 +50,10 @@
   font-size: 16px;
 }
 
-
-
 .Cell__children .star svg {
   width: 16px;
   margin-bottom: -4px;
 }
-
 
 .star {
   font-size: 24px;
