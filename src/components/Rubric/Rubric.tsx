@@ -27,12 +27,16 @@ class Rubric extends React.Component<any, any> {
 		} = this.props
 
 		const getCover = () => {
-			if (!this.props.rubric) return
-			let post = this.props.post;
-			let attach = post.attachments[0]
+			try {
+				let post = this.props.post;
+				let attach = post.attachments[0]
 
-			let size = attach.photo.sizes[attach.photo.sizes.length - 1];
-			return size.url
+				let size = attach.photo ? attach.photo.sizes[attach.photo.sizes.length - 1] : null;
+				return size.url
+			} catch {
+				return null
+			}
+
 		}
 
 		const osname = platform();
@@ -64,7 +68,8 @@ class Rubric extends React.Component<any, any> {
 								<Div className="rubricPost" style={(() => (osname === ANDROID) ? { paddingBottom: '148px' } : { paddingBottom: '80px' })()}>
 									<h2>Актуальное задание</h2>
 									{post.text}
-									<img src={getCover()} className="postCover" alt="postCover" />
+
+									{/* <img src={getCover()} className="postCover" alt="postCover" /> */}
 								</Div>
 							</div>
 						)
