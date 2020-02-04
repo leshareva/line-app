@@ -15,8 +15,6 @@ import Profile from './components/Profile/Profile';
 import MarketCard from './components/MarketCard/MarketCard';
 import * as Typograf from 'typograf';
 
-import Icon28Newsfeed from '@vkontakte/icons/dist/28/newsfeed';
-import Icon28Users from '@vkontakte/icons/dist/28/users';
 
 const tp = new Typograf({ locale: ['ru', 'en-US'] });
 
