@@ -28,7 +28,6 @@ class App extends React.Component<any, any> {
 
 		this.state = {
 			fetchedUser: null,
-
 			activeView: 'profile',
 			authToken: null,
 			isLoading: false,
@@ -88,7 +87,6 @@ class App extends React.Component<any, any> {
 						return {}
 					}}
 				>
-
 					<InfoRow title={`${percent} ед. опыта. Осталось: ${1000 - percent} ед.`}>
 						<Progress value={percent * 0.1} style={{width: '100%'}}/>
 					</InfoRow>
@@ -245,7 +243,6 @@ class App extends React.Component<any, any> {
 
 		return (
 			<View activePanel={this.state.activeView}>
-				{console.log()}
 				<Profile id="profile" snackbar={this.state.snackbar} openSnackbar={this.openBase} market={items} rubrics={rubrics} go={this.go} fetchedUser={this.state.fetchedUser} history={history} sprintData={sprintData} ></Profile>
 				<Rubric id="rubric" fetchedUser={this.state.fetchedUser} rubric={this.state.meta} post={this.state.post} go={this.go}></Rubric>
 				<MarketCard id="marketItem" go={this.go} item={this.state.meta}></MarketCard>
