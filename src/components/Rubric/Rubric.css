@@ -46,3 +46,8 @@ h1 {
 h2 {
   font-size: 24px;
 }
+
+
+.progressBar {
+  margin: 0 14px;
+}

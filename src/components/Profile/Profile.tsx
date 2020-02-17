@@ -92,6 +92,7 @@ class Profile extends React.Component<any, any> {
                     </div>
                 </Cover>
 
+                
 
                 <Group title="Рубрики" >
                     <List>
