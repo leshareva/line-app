@@ -1,20 +1,31 @@
+:root {
+  --text_secondary: #96a4bd;
+  --header_background: none !important;
+  --icon_secondary: #d5dce7;
+  --button_primary_background: #e03800;
+  --font-ios: "Montserrat", sans-serif;
+  --big-font-size: 32px;
+  --lead-font-size: 20px;
+  --body-font-size: 12px;
+  --small-font-size: 8px;
+}
+
+
 .header {
   --separator_alpha: none !important;
   --like_text_tint: #770efd !important;
 }
 
-:root {
-  --text_secondary: #96a4bd;
-  --header_background: none !important;
-  --icon_secondary: #d5dce7;
-  --button_primary_background: #770efd;
+
+
+body  {
+  font-size: var(--body-font-size);
+  font-family: var(--font-ios);
+  line-height: 146%;
 }
 
-.Button--sz-m .Button__content {
-  font-family: "Montserrat", sans-serif;
-  font-weight: bold;
-  font-size: 16px;
-}
+
+
 
 .PanelHeader-bg {
   display: none !important;
@@ -52,8 +63,21 @@
   padding: 8px 16px;
 }
 
+.Button {
+  border: 2px solid;
+  border-color: var(--button_primary_background);
+  color: var(--button_primary_background);
+  background-color: white;
+  font-weight: bold !important;
+}
+
 .Button--ios {
   border-radius: 4px;
+}
+
+.Button--sz-l .Button__content {
+  font-family: var(--font-ios);
+  font-size: var(--lead-font-size);
 }
 
 .bottomBar .Button {
@@ -71,4 +95,29 @@
 
 .Group {
   padding: 0px 0px 16px 0px;
+}
+
+.Panel__separator {
+  display: none;
+}
+
+h1 {
+  font-size: 32px !important;
+  line-height: 100%;
+  margin: 0;
+}
+
+h2 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.lead {
+  font-size: 20px;
+  line-height: 126%;
+}
+
+.Cell__children {
+  font-size: var(--body-font-size);
+  line-height: 120%;
 }

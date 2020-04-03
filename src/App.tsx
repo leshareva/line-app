@@ -3,16 +3,17 @@ import connect from '@vkontakte/vk-connect';
 import { platform, ANDROID, View, Snackbar, InfoRow, Progress } from '@vkontakte/vkui';
 
 import { base } from './airtable/airtable';
-import { R_VK_ID, RUBRICS } from './airtable/constants';
+import { R_VK_ID } from './airtable/constants';
 
 import splash from './img/splash.GIF';
 import '@vkontakte/vkui/dist/vkui.css';
 import "./main.css";
 
-import { VK_GROUP_ID, VK_APP_ID, AMOUNT_TO_NEW_USER } from './constants';
+import { VK_GROUP_ID, AMOUNT_TO_NEW_USER } from './constants';
 import Rubric from './components/Rubric/Rubric';
 import Profile from './components/Profile/Profile';
 import MarketCard from './components/MarketCard/MarketCard';
+import LessonCard from './components/LessonCard/LessonCard';
 import * as Typograf from 'typograf';
 
 
@@ -38,41 +39,51 @@ class App extends React.Component<any, any> {
 			rubrics: [],
 			sprintData: null,
 			meta: {},
-			snackbar: null
+			snackbar: null,
+			purchases: null
 
 		};
+
+		
 		this.getItems = this.getItems.bind(this);
 		this.openBase = this.openBase.bind(this);
 		this.onStoryChange = this.onStoryChange.bind(this);
+
 	}
 
 	async componentDidMount() {
+		
 		this.setState({ isLoading: true });
 
 		connect.subscribe(async (e: any) => {
 			switch (e.detail.type) {
 				case 'VKWebAppGetUserInfoResult':
 					this.setState({ fetchedUser: e.detail.data });
+					this.setState({ rubrics: await this.getRubricsFromBase() })
+					this.setState({ sprintData: await this.getUserDataFromBase() })
+					this.setState({ isLoading: false })
 					break;
 				case 'VKWebAppAccessTokenReceived':
 					this.setState({ authToken: e.detail.data.access_token });
-					this.getItems();
 					break;
 				case 'VKWebAppViewRestore':
-					this.setState({ isLoading: true });
-					this.getItems();
 					break;
 				default:
-					console.log(e.detail.type);
+
 			}
 		});
+
+
+
+
 		(osname === ANDROID) ? connect.send("VKWebAppSetViewSettings", { "status_bar_style": "light", "action_bar_color": "#000000" }) : connect.send("VKWebAppSetViewSettings", { "status_bar_style": "light", });
 		connect.send('VKWebAppGetUserInfo', {});
-		connect.sendPromise("VKWebAppGetAuthToken", { "app_id": VK_APP_ID, "scope": "market" });
+		// connect.sendPromise("VKWebAppGetAuthToken", { "app_id": VK_APP_ID, "scope": "market" });
 
 	}
 
-	
+
+
 
 	openBase() {
 
@@ -91,8 +102,8 @@ class App extends React.Component<any, any> {
 						return {}
 					}}
 				>
-					<InfoRow title={`${percent} / 1000 ед. опыта`}>
-						<Progress value={percent * 0.1} style={{width: '100%'}}/>
+					<InfoRow header={`${percent} / 1000 ед. опыта`}>
+						<Progress value={percent * 0.1} style={{ width: '100%' }} />
 					</InfoRow>
 					<a href="https://vk.com/@lean.school-user-level" target="_blank" rel="noopener noreferrer">Зачем нужен уровень?</a>
 
@@ -100,83 +111,99 @@ class App extends React.Component<any, any> {
 		});
 	}
 
-	getItems = async () => {
-		this.setState({ isLoading: true })
+	async getUserDataFromBase() {
+		if (!this.state.fetchedUser) return
+		let user = this.state.fetchedUser;
+		//получаем данные пользователя из Airtable
+		let sprintData = await base.list('Участники', { filterByFormula: `{${R_VK_ID}} = ${user.id}` }).then(res => res[0]);
 
-		if (this.state.authToken) {
-			let market = await this.callVKApi('market.get', { owner_id: -(VK_GROUP_ID), access_token: this.state.authToken })
-				.then((res: any) => res.response.items)
-				.catch(_ => [])
+		if (!sprintData) { //если нет, то создаём пользователя в Airtable
+			sprintData = await base.create({ 'Имя': `${user.first_name} ${user.last_name}`, [R_VK_ID]: user.id }, 'Участники')
+				.then(res => base.create({
+					"Баллы": AMOUNT_TO_NEW_USER,
+					"Профиль": [res.recID],
+					"Комментарий": "Первое начисление"
+				}, "Начисления: разминки"))
 
-			this.setState({ items: market })
 		}
 
-		if (this.state.fetchedUser) {
-			let user = this.state.fetchedUser
-			let sprintData = await base.list('Участники', { filterByFormula: `{${R_VK_ID}} = ${this.state.fetchedUser.id}` }).then(res => res[0]);
 
-			if (!sprintData) {
+		return sprintData
+	}
 
-				sprintData = await base.create({ 'Имя': `${user.first_name} ${user.last_name}`, [R_VK_ID]: user.id }, 'Участники')
-					.then(res => base.create({
-						"Баллы": AMOUNT_TO_NEW_USER,
-						"Профиль": [res.recID],
-						"Комментарий": "Первое начисление"
-					}, "Начисления: разминки"))
+	async getRubricsFromBase() {
+		let rubrics = await base.list('Рубрики', {filterByFormula: '{Опубликовано} = TRUE()'}).catch(e => []) as any[]
 
-				// this.setActiveModal('amount')
-
+		return rubrics.map(obj => {
+			if (obj['Описание']) {
+				obj['Описание'] = tp.execute(obj['Описание']);
+				obj.desc = obj['Описание'].replace(/[*#|]/gs, '').slice(0, 60)
+				if (obj.desc.length < obj['Описание'].length) obj.desc = obj.desc + "…"
 			}
 
-			this.setState({ sprintData: sprintData })
-			let promises = RUBRICS
-				.map(el =>
-					base.list(el, { filterByFormula: `{${R_VK_ID}} = ${this.state.fetchedUser.id}`, sort: [{ field: 'Датавремя', direction: 'desc' }], maxRecords: 10 })
-						.then(res => res.map(obj => {
-							obj.rubric = el;
-							return obj;
-						}))
-				)
+			return obj
+		})
+	}
 
-			let rubrics = await base.list('Рубрики').catch(e => []);
-			rubrics = rubrics
-				.filter(el => el['Опубликовано'])
-				.map(obj => {
-					if (obj['Описание']) {
-						obj['Описание'] = tp.execute(obj['Описание']);
-						obj.desc = obj['Описание'].replace(/[*#|]/gs, '').slice(0, 60)
-						if (obj.desc.length < obj['Описание'].length) obj.desc = obj.desc + "…"
-					}
-
-					return obj
-				})
-				
-			this.setState({ rubrics: rubrics })
-
-			let result = await Promise.all(promises) as any[][]
-			let history = [].concat.apply([], result);
-
-			history = history
-				.map(item => {
-					const rubric = rubrics.find(el => item['Рубрика'] && item['Рубрика'][0] === el.recID)
-					if (rubric) item.rubric = rubric['Название']
-					return item
-				})
-				.sort((a, b) => {
-					var dateA = new Date(a['Датавремя']),
-						dateB = new Date(b['Датавремя'])
-					return dateB - dateA
-				})
+	getItems = async () => {
 
 
-			this.setState({ history: history, isLoading: false })
+		// if (this.state.authToken) {
+		// 	let market = await this.callVKApi('market.get', { owner_id: -(VK_GROUP_ID), access_token: this.state.authToken })
+		// 		.then((res: any) => res.response.items)
+		// 		.catch(_ => [])
 
-		}
+		// 	this.setState({ items: market })
+		// }
+
+
+
+		// if (this.state.fetchedUser) {
+
+
+		// let promises = RUBRICS
+		// 	.map(el =>
+		// 		base.list(el, { filterByFormula: `{${R_VK_ID}} = ${this.state.fetchedUser.id}`, sort: [{ field: 'Датавремя', direction: 'desc' }], maxRecords: 10 })
+		// 			.then(res => res.map(obj => {
+		// 				obj.rubric = el;
+		// 				return obj;
+		// 			}))
+		// 	)
+
+
+
+
+
+
+
+		// let result = await Promise.all(promises) as any[][]
+		// let history = [].concat.apply([], result);
+
+		// history = history
+		// 	.map(item => {
+		// 		const rubric = rubrics.find(el => item['Рубрика'] && item['Рубрика'][0] === el.recID)
+		// 		if (rubric) item.rubric = rubric['Название']
+		// 		return item
+		// 	})
+		// 	.sort((a, b) => {
+		// 		var dateA = new Date(a['Датавремя']),
+		// 			dateB = new Date(b['Датавремя'])
+		// 		return dateB - dateA
+		// 	})
+
+
+		// this.setState({ history: history, isLoading: false })
+
+
+
+		// }
 
 	};
 
 
-
+	componentWillUnmount() {
+		// this._isMounted = false;
+	}
 
 
 
@@ -209,10 +236,6 @@ class App extends React.Component<any, any> {
 		const meta = e.currentTarget.dataset.meta;
 		const parseMeta = meta ? JSON.parse(meta) : null
 		if (parseMeta) this.setState({ meta: parseMeta })
-		if (route === 'rubric') {
-			let post = await this.getWallPost(parseMeta["ТэгЗадания"])
-			this.setState({ post: post })
-		}
 
 		this.setState({ activeView: route })
 		// this.setLocation(route)
@@ -241,20 +264,19 @@ class App extends React.Component<any, any> {
 
 
 
-
 	render() {
 		const { fetchedUser, isLoading, history, sprintData, rubrics, items } = this.state;
 		if (!fetchedUser || isLoading) return splashLoader;
 
 		return (
 
-			
 			<View id="main" activePanel={this.state.activeView}>
 				<Profile id="profile" snackbar={this.state.snackbar} openSnackbar={this.openBase} market={items} rubrics={rubrics} go={this.go} fetchedUser={this.state.fetchedUser} history={history} sprintData={sprintData} ></Profile>
-				<Rubric id="rubric" fetchedUser={this.state.fetchedUser} rubric={this.state.meta} post={this.state.post} go={this.go} history={history} sprintData={sprintData}></Rubric>
+				<Rubric id="rubric" user={this.state.fetchedUser} rubric={this.state.meta} post={this.state.post} go={this.go} history={history} sprintData={sprintData}></Rubric>
 				<MarketCard id="marketItem" go={this.go} item={this.state.meta}></MarketCard>
+				<LessonCard id="lesson" onBackClick={this.go} meta={this.state.meta} user={sprintData}></LessonCard>
 			</View >
-		
+
 
 		)
 	}

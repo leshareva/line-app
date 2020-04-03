@@ -13,9 +13,9 @@ class Airtable extends air {
         this._config = config
     }
 
-    list(listName: string, options?: { filterByFormula?: string, fields?: Array<string>, sort?: Array<{ field: string, direction: "desc" | "asc" }>, maxRecords?: number }): Promise<any[]> {
+    list(listName: string, options?: { filterByFormula?: string, fields?: Array<string>, sort?: string, view?: string }) {
         //sort: [{field: "Имя", direction: "desc" || "asc" }]
-        return new Promise<any[]>((resolve, reject) => {
+        return new Promise<Array<any>>((resolve, reject) => {
             let cells = []
             // let opt = { filterByFormula: `{${key}} = "${value}"` } //TO-DO: обработу numbers и strings в значении value
 
@@ -23,10 +23,9 @@ class Airtable extends air {
                 .eachPage(function page(records, fetchNextPage) {
                     records
                         // .filter(record => record.get(key) === value)
-                        .map(el => {
+                        .forEach(el => {
                             el.fields.recID = el.id
                             cells.push(el.fields)
-                            return el
                         })
 
                     // This function (`page`) will get called for each page of records.
@@ -37,9 +36,10 @@ class Airtable extends air {
                     resolve(cells)
                 })
 
-        })
+        }).catch(console.error)
 
     }
+
 
 
     find = async (recId: string, listName: string) =>
@@ -70,6 +70,18 @@ class Airtable extends air {
                     resolve(record.fields)
                 })
         })
+
+    update = (params: Array<{ id: string, fields: any }>, listName: string) =>
+        new Promise( (resolve, reject) => {
+            this.base(listName).update(params, (err, records) => {
+                if (err) { 
+                    console.log(records)
+                    console.log(JSON.parse(err))
+                    reject(err) 
+                }
+                resolve()
+            })
+        }).catch(console.log)
 
 }
 

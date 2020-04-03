@@ -9,4 +9,4 @@ export const L_RATE_WORKOUT = 'Начисления: разминки';
 export const L_RATE_SPRINT = 'Начисления: спринты';
 export const L_RATE_SPAS = 'Начисления: дизайнспас';
 export const L_RATE_WITHDRAW = 'Покупки';
-export const RUBRICS = [L_RATE_SPAS, L_RATE_WORKOUT, L_RATE_SPRINT, L_RATE_WITHDRAW]
+export const RUBRICS = [L_RATE_SPAS, L_RATE_WORKOUT, L_RATE_SPRINT]

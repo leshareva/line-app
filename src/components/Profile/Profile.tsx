@@ -98,8 +98,8 @@ class Profile extends React.Component<any, any> {
                     <List>
                         {(() => rubrics
                             .map((item, i) => {
-                                let cover = () => item['Обложка'] ? <Avatar type="image" src={item['Обложка'][0]['url']} size={72} /> : ""
-                                return (<Cell key={i} className="rubricsCell" before={cover()} multiline description={item['desc']} asideContent={<Icon24BrowserForward fill="var(--icon_secondary)" />} onClick={go} data-to='rubric' data-meta={JSON.stringify(item)}>{item['Название']}</Cell>)
+                                let cover = () => item['Обложка'] ? <Avatar mode="image" src={item['Обложка'][0]['url']} size={72} /> : ""
+                                return (<Cell key={i} before={cover()} multiline description={item['desc']} asideContent={<Icon24BrowserForward fill="var(--icon_secondary)" />} onClick={go} data-to='rubric' data-meta={JSON.stringify(item)}>{item['Название']}</Cell>)
                             })
                         )()}
                     </List>
@@ -112,7 +112,7 @@ class Profile extends React.Component<any, any> {
                             {
                                 market.length > 0 && market.map((item, i) =>
                                     (<div key={i} className="marketItem">
-                                        <Avatar className="marketImage" type="image" key={i} src={item.thumb_photo} onClick={go} data-to='marketItem' data-meta={JSON.stringify(item)} />
+                                        <Avatar className="marketImage" mode="image" key={i} src={item.thumb_photo} onClick={go} data-to='marketItem' data-meta={JSON.stringify(item)} />
                                         {item.title.replace(/(\d+★).*/gs, '$1')}</div>)
                                 )
                             }

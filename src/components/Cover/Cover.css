@@ -1,19 +1,17 @@
-
-
 .cover {
   /* background-color: black; */
   --header_background: none !important;
   height: 100%;
-  min-height: 154px;
+  /* min-height: 154px; */
   color: white;
   font-style: normal;
-  font-weight: bold;
-  font-size: 16px;
-  line-height: 20px;
   padding: 0;
   margin-top: calc(0px - var(--panelheader_height_ios) - 21px);
   padding-top: 21px;
   position: relative;
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-end;
 }
 
 .panelImage {
@@ -33,18 +31,16 @@
 }
 
 .cover h1 {
-  margin: 40px 0 20px 0;
-  font-family: 'Montserrat';
+  margin: 40px 0 8px 0;
 }
 
 .cover a {
   color: white;
   text-decoration: none;
-  border-bottom: 1px solid rgba(255,255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   font-size: 12px;
 }
 
 .coverContainer {
-  padding: 16px;
+  padding: 0;
 }
-

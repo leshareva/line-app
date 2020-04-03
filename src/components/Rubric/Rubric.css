@@ -7,9 +7,6 @@
 }
 
 
-
-
-
 .rubricPost {
   white-space: pre-line;
   font-family: "Montserrat";
@@ -37,17 +34,63 @@
   font-weight: 400;
 }
 
-h1 {
-  font-weight: 800;
-  font-size: 48px;
-  line-height: 90%;
-}
 
-h2 {
-  font-size: 24px;
-}
 
 
 .progressBar {
   margin: 0 14px;
+}
+
+.cardWrapper {
+  padding: 20px;
+}
+
+.Cell__before {
+  align-items: flex-start;
+}
+
+.time {
+  font-family: 'Montserrat';
+    font-size: var(--body-font-size);
+    color: #000;
+    font-weight: normal;
+    /* margin-right: 10px; */
+    line-height: 16px;
+    /* width: 40px; */
+    padding: 12px 8px 11px 0;
+ 
+}
+
+.Cell__children, .Cell__description {
+  font-size: var(--body-font-size)  !important;
+}
+
+
+.calendarWrapper {
+  margin-top: 20px;
+}
+
+.calendarHeader {
+  font-weight: bold;
+  margin-left: 12px;
+}
+
+.Tabs {
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.Tabs--default .TabsItem {
+    font-size: var(--body-font-size);
+    font-weight: 600;
+    line-height: 20px;
+    max-width: 100%;
+    flex-basis: 0;
+    flex-grow: unset;
+    position: relative;
+    padding-left: 11px;
+    padding-right: 16px;
+}
+
+.Tabs--default .TabsItem--selected::after {
+  display: none;
 }
