@@ -1,15 +1,14 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Panel, Div, Group, List, Cell, InfoRow, Progress, Header, Spinner, Tabs, TabsItem } from '@vkontakte/vkui';
+import { Panel, Div, Spinner, Card, CardScroll } from '@vkontakte/vkui';
 import { base } from '../../airtable/airtable';
-
 import "./Rubric.css";
 import Cover from '../Cover/Cover';
 import ReactMarkdown from 'react-markdown';
-// import connect from '@vkontakte/vk-connect';
 import Navbar from '../Navbar/Navbar';
-import { star } from '../../icons';
-// const osname = platform();
+
+import RubricTabs from './RubricTabs';
+import ScheduleList from './ScheduleList';
+import HistoryList from './HistoryList';
 
 
 class Rubric extends React.Component<any, any> {
@@ -18,7 +17,8 @@ class Rubric extends React.Component<any, any> {
 	state = {
 		purchases: null,
 		lessons: null,
-		activeTab2: 'desc',
+		activeTab: 'desc',
+		goods: null
 	}
 
 
@@ -33,12 +33,24 @@ class Rubric extends React.Component<any, any> {
 		await this.getLessons().then(data => {
 
 			if (Object.keys(data).length !== 0) {
-				this.setState({ activeTab2: 'schedule' })
+				this.setState({ activeTab: 'schedule' })
 			}
 			this.setState({ lessons: data });
 
 			return
 		})
+
+		if (this.props.rubric && this.props.rubric['Товар']) {
+
+			let promise = this.props.rubric['Товар'].map(recID => {
+				return base.find(recID, 'Товары')
+			})
+
+			Promise.all(promise).then(res => {
+				this.setState({ goods: res });
+			})
+
+		}
 	}
 
 
@@ -46,10 +58,6 @@ class Rubric extends React.Component<any, any> {
 		this.setState({ purchases: null, lessons: null })
 	}
 
-	select(e) {
-		const mode = e.currentTarget.dataset.mode;
-		this.setState({ mode });
-	}
 
 	parseDate = (iso: string) => {
 		var arr = [
@@ -72,33 +80,7 @@ class Rubric extends React.Component<any, any> {
 		return result
 	}
 
-	private parseHistory = (history: any[]) => {
 
-		return history.map((el, i) => {
-			return <Cell key={i} asideContent={el.rubric} className={(() => (el['Баллы']) < 0 ? "cellNegative" : "historyCell")()} description={(() => {
-				return this.parseDate(el['Датавремя'])
-			})()
-			} >
-
-				{(() => {
-
-					if (!el['Баллы']) el['Баллы'] = 0;
-
-					if (el['Баллы'] > 0 && el['Опыт']) {
-						return <span><span>{el['Баллы']}</span><span className="star">{star('#000000')}</span><span>,&nbsp;{el['Опыт'][0]}&nbsp;опыта {(() => el['Комментарий'] ? "• " + el['Комментарий'] : "")()}</span></span>
-					} else if (el['Баллы'] === 0 && el['Опыт']) {
-						return <span>{el['Опыт'][0]}&nbsp;опыта {(() => el['Комментарий'] ? "• " + el['Комментарий'] : "")()}</span>
-
-					} else if (!el['Опыт']) {
-						return <span><span>{el['Баллы']}</span><span className="star">{star('#000000')}</span>{(() => el['Комментарий'] ? "• " + el['Комментарий'] : "")()}</span>
-
-					}
-				})()
-				}
-
-			</Cell>
-		})
-	}
 
 
 	getLessons = async () => {
@@ -156,10 +138,20 @@ class Rubric extends React.Component<any, any> {
 			})
 	}
 
+
+	select(e) {
+		const mode = e.currentTarget.dataset.mode;
+		this.setState({ mode });
+	}
+
+
+
+
+
 	getPurchases = async () => {
 		const user = this.props.user;
 		const rubric = this.props.rubric;
-		let res = await base.list('Покупки', { filterByFormula: `AND({VK-ID}=${user.id}, {Статус}=BLANK() )`, fields: ["Рубрика", "Осталось", "Датавремя", "Кол-во тренировок", "Посещеные тренировки"] }).catch(err => {
+		let res = await base.list('Покупки', { filterByFormula: `AND({VK-ID}=${user.id}, {Статус}=BLANK() )`, fields: ["Название", "Рубрика", "Осталось", "Датавремя", "Кол-во тренировок", "Посещеные тренировки"] }).catch(err => {
 			console.log(err);
 			return [];
 		}) as [];
@@ -168,12 +160,27 @@ class Rubric extends React.Component<any, any> {
 		return pursh[0];
 	}
 
+	renderAbonement = () => {
 
-	renderMeta = (el) => {
-		el.sprintData = this.props.sprintData
-		el.purchases = this.state.purchases
-		return el
+		if (!this.state.goods) return;
+
+		return this.state.goods.map((good, i) => {
+
+			return <Card size="l" key={i}>
+				<div className="abonement">
+					<h2>{good["Название товара"]}</h2>
+				</div>
+			</Card>
+		})
 	}
+
+	onCellClickHandler(el) {
+		el.user = this.props.user
+		el.purchases = this.state.purchases
+		return this.props.rubricCellClickHandler('lesson', el)
+	}
+
+
 
 	render() {
 
@@ -181,157 +188,58 @@ class Rubric extends React.Component<any, any> {
 			go,
 			rubric,
 			history
-			// sprintData
 		} = this.props
 
 		let h = history ? history.filter(el => el.rubric === rubric['Название']) : []
-		// if(!this.state.purchases) return splashLoader;
 
 
-
-		let cellHistory = this.parseHistory(h);
 
 
 
 		const cover = () => rubric['Обложка'] ? `url(${rubric['Обложка'][0]['url']}) center/cover no-repeat` : '';
-		
+
 		return (
 
 			<Panel id='rubric'>
 
 				<Navbar go={go} dataTo='profile'></Navbar>
 
-				<Cover background={cover()}>
+				<Cover background={cover()} height="fit-content">
 					<Div className="desc">
 						<h1>{rubric['Название']}</h1>
-						<div className="lead">{(() => { return this.state.purchases ? `Доступно ${this.state.purchases['Осталось']} тренировки` : "" })()}</div>
-						{/* <ReactMarkdown source={ "" } /> */}
+						<div className="lead"><CardScroll>{this.renderAbonement()}</CardScroll></div>
 					</Div>
 				</Cover>
 
-				{
-					(() => {
-						//выводим список тренировок
-						if (!this.state.lessons) return <Spinner size="medium" style={{ marginTop: 20 }} />
 
+				<RubricTabs
+					rubric={rubric}
+					selectedTab={this.state.activeTab}
+					history={history}
+					onClickHandler={(tabName) => this.setState({ activeTab: tabName })}
+				/>
 
-						return <div><Tabs>
-							{
-								(() => {
-									if (!rubric['Тренировки']) return
-
-									return <TabsItem
-										onClick={() => this.setState({ activeTab2: 'schedule' })}
-										selected={this.state.activeTab2 === 'schedule'}
-									>
-										Расписание
-														</TabsItem>
-								})()
-							}
-
-							{
-								(() => {
-									if (!rubric['Описание']) return
-
-									return <TabsItem
-										onClick={() => this.setState({ activeTab2: 'desc' })}
-										selected={this.state.activeTab2 === 'desc'}
-									>
-										Описание
-												</TabsItem>
-								})()
-							}
-
-
-
-							{
-								(() => {
-									if (!h || h.length === 0) return
-
-									return <TabsItem
-										onClick={() => this.setState({ activeTab2: 'history' })}
-										selected={this.state.activeTab2 === 'history'}
-									>
-										Прогресс
-												</TabsItem>
-								})()
-							}
-
-						</Tabs>
-
-
-							{(() => {
-								if (this.state.activeTab2 !== 'desc' || !rubric['Описание']) return;
-								return <Div><ReactMarkdown source={rubric['Описание']} /> </Div>
-							})()
-							}
-
-							{(() => {
-								//прогресс бар по рубрике
-								if (this.state.activeTab2 !== 'history' || !rubric['Итог опыт']) return;
-
-								let exp = h.filter(el => el['Опыт']).map(el => el['Опыт'][0])
-									.reduce((current, next) => current + next);
-								return <Group title="Прогресс" className="progressBarContainer">
-									<InfoRow header={`${Math.round((exp * 100) / rubric['Итог опыт'])}%`} className="progressBar">
-										<Progress value={(exp * 100) / rubric['Итог опыт']} style={{ width: '100%' }} />
-									</InfoRow>
-								</Group>
-
-							})()}
-
-
-							{(() => {
-
-								if (this.state.activeTab2 !== 'history' || h.length === 0) return;
-
-								//Выводим историю начислений по этой рубрике
-								return <Group header={<Header mode="secondary">История</Header>} className="history">
-									{(() => {
-										if (h.length === 0) {
-											return <Div>Вы пока не участвовали ни в одной активности в этой рубрике.</Div>
-										}
-										return <List> {cellHistory} </List>
-									})()}
-
-								</Group>
-							})()}
-
-
-							{(() => {
-								if (this.state.activeTab2 !== 'schedule') return;
-
-								const lessons = this.state.lessons;
-								let days = Object.keys(lessons);
-								return days.map((key, i) => {
-									let les = lessons[key];
-									return <div className="calendarWrapper" key={i}>
-										<Group header={<h1 className="calendarHeader">{key.replace(/(\d+\s\D{3}?).+/gs, '$1') + ", " + les['day']}</h1>}  >
-											{(() => {
-												return lessons[key]['items'].map((el, index) => {
-													return (
-														<Cell expandable multiline onClick={go} data-to='lesson' before={<div className="time">{el['Время']}<br /><span style={{ color: "#cccccc" }}>{el['Окончание']}  <br /> МСК</span></div>} data-meta={JSON.stringify(this.renderMeta(el))} key={index} description={el['Описание'].substring(0, 70)}>{el['Name']}</Cell>
-													)
-												})
-											})()}
-										</Group>
-									</div>
-								})
-
-							})()}
-						</div>
-
-
-
-					})()
+				{(this.state.activeTab === 'desc' && rubric['Описание'])
+					? <Div><ReactMarkdown source={rubric['Описание']} /> </Div>
+					: null
 				}
 
 
 
+				{(this.state.activeTab === 'history') ? <HistoryList history={h} rubric={rubric} /> : null}
 
 
+				{(() => {
+					if (this.state.activeTab === 'schedule'&&!this.state.lessons) return <Spinner size="medium" style={{ marginTop: 20 }} />
+					if (this.state.activeTab !== 'schedule') return;
+					
 
-
+					return <ScheduleList
+						lessons={this.state.lessons}
+						onCellClick={(e) => this.onCellClickHandler(e)}
+						rubric={rubric}
+					/>
+				})()}
 
 			</Panel>
 
@@ -339,17 +247,5 @@ class Rubric extends React.Component<any, any> {
 	}
 }
 
-Rubric.propTypes = {
-	id: PropTypes.string.isRequired,
-	post: PropTypes.object,
-	user: PropTypes.shape({
-		photo_200: PropTypes.string,
-		first_name: PropTypes.string,
-		last_name: PropTypes.string,
-		city: PropTypes.shape({
-			title: PropTypes.string,
-		}),
-	}),
-};
 
 export default Rubric;

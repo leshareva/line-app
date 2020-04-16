@@ -30,11 +30,6 @@
   bottom: 48px;
 }
 
-.Cell__aside,
-.Cell__description {
-  font-size: 13px;
-  font-family: "Montserrat";
-}
 
 .history .Cell__description {
   --text_secondary: black;
@@ -46,8 +41,6 @@
 
 .Cell__children {
   font-weight: 600;
-  font-family: "Montserrat";
-  font-size: 16px;
 }
 
 .Cell__children .star svg {
@@ -87,4 +80,17 @@
 }
 .amount > span {
   position: relative;
+}
+
+
+.Cell__before {
+  align-items: flex-start;
+}
+
+.Cell--m .Cell__in {
+  align-items: flex-start;
+}
+
+.Cell--ios .Cell__main {
+  padding: 4px 8px 11px 0;
 }

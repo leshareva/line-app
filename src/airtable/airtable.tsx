@@ -72,16 +72,28 @@ class Airtable extends air {
         })
 
     update = (params: Array<{ id: string, fields: any }>, listName: string) =>
-        new Promise( (resolve, reject) => {
+        new Promise((resolve, reject) => {
             this.base(listName).update(params, (err, records) => {
-                if (err) { 
+                if (err) {
                     console.log(records)
                     console.log(JSON.parse(err))
-                    reject(err) 
+                    reject(err)
                 }
                 resolve()
             })
         }).catch(console.log)
+
+
+    delete = (recIDs: string[], listName: string) =>
+        new Promise((resolve, reject) => {
+            this.base(listName).destroy(recIDs, (err, record) => {
+                if (err) {
+                    console.log(JSON.parse(err))
+                    reject(err)
+                }
+                resolve(recIDs)
+            })
+        })
 
 }
 

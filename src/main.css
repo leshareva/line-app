@@ -3,11 +3,13 @@
   --header_background: none !important;
   --icon_secondary: #d5dce7;
   --button_primary_background: #e03800;
-  --font-ios: "Montserrat", sans-serif;
+  --font-header: "Montserrat", sans-serif;
+  --font-ios: "Source Sans Pro", sans-serif;
   --big-font-size: 32px;
-  --lead-font-size: 20px;
-  --body-font-size: 12px;
-  --small-font-size: 8px;
+  --lead-font-size: 22px;
+  --body-font-size: 16px;
+  --small-font-size: 12px;
+  --link_alternate:  #e03800;
 }
 
 
@@ -32,10 +34,6 @@ body  {
 }
 
 .Header--level-secondary .Header__content {
-  font-family: "Montserrat";
-  font-weight: 600;
-  font-size: 13px;
-  line-height: 16px;
   /* identical to box height */
   letter-spacing: -0.078px;
 
@@ -43,10 +41,12 @@ body  {
   color: var(--text_secondary);
 }
 
+
+
 .Cell__description {
   color: var(--text_secondary);
-  font-weight: 400;
-  font-size: 13px;
+  line-height: 116% !important;
+  font-size: var(--font-ios) !important;
 }
 
 .marketImage .Avatar__in img {
@@ -102,22 +102,40 @@ body  {
 }
 
 h1 {
-  font-size: 32px !important;
+  font-family: var(--font-header);
+  font-size: var(--big-font-size);
   line-height: 100%;
   margin: 0;
 }
 
 h2 {
-  font-size: 20px;
+  font-family: var(--font-header);
+  font-size: var(--lead-font-size);
+  line-height: 100%;
   margin: 0;
 }
 
 .lead {
   font-size: 20px;
-  line-height: 126%;
+  line-height: 100%;
+}
+
+p {
+  margin-block-start: 0;
 }
 
 .Cell__children {
   font-size: var(--body-font-size);
   line-height: 120%;
 }
+
+a:-webkit-any-link {
+  color: #e03800;
+  border-bottom: 1px solid rgba(222, 58,24,0.2);
+  text-decoration: none;
+}
+
+.PanelHeader-left-in {
+  color: white;
+}
+

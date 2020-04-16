@@ -1,51 +1,8 @@
-.rubric {
-  --separator_alpha: none !important;
-  --like_text_tint: #770efd !important;
-  --header_background: none !important;
-  --action_sheet_separator: none !important;
-  
-}
-
-
-
-
-
-.rubricPost {
-  white-space: pre-line;
-  font-family: "Montserrat";
-  font-size: 16px;
-  line-height: 137%;
-  
-}
-
-.postCover {
-  width: 100%;
-  height: auto;
-  margin-top: 16px;
-}
-
-.decWrapper {
-  /* width: 100%; */
-  padding-left: 20px;
-  padding-right: 20px;
-  background-color: var(--background_content);
-}
 
 .desc {
-  font-family: "Montserrat";
   white-space: pre-wrap;
-  font-weight: 400;
 }
 
-h1 {
-  font-weight: 800;
-  font-size: 48px;
-  line-height: 90%;
-}
-
-h2 {
-  font-size: 24px;
-}
 
 
 .progressBar {
@@ -56,6 +13,13 @@ h2 {
   padding: 20px;
 }
 
-.PanelHeader-left-in {
-  color: var(--button_primary_background);
+
+/* .desc {
+  max-width: 82%;
+} */
+
+.bottomBar {
+  padding: 0;
+  text-align: left;
+  color: var(--button_primary_background)
 }

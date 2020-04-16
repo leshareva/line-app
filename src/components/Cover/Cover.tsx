@@ -12,7 +12,7 @@ export default class Cover extends React.Component<any, any> {
             height
         } = this.props
         return (
-            <Div className="cover" style={{ height: height ? height : '38vh', background: background ? background : 'linear-gradient(200.98deg, #485563 -13.11%, #29323C 75.28%)' }}>
+            <Div className="cover" style={{ height: height ? height : '38vh', minHeight: '38vh', background: background ? background : 'linear-gradient(200.98deg, #485563 -13.11%, #29323C 75.28%)' }}>
                 {/* {(() => content)()} */}
                 <div className="coverContainer">{this.props.children}</div>
             </Div>

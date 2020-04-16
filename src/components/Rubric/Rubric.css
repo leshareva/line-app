@@ -9,7 +9,6 @@
 
 .rubricPost {
   white-space: pre-line;
-  font-family: "Montserrat";
   font-size: 16px;
   line-height: 137%;
   
@@ -29,9 +28,7 @@
 }
 
 .desc {
-  font-family: "Montserrat";
   white-space: pre-wrap;
-  font-weight: 400;
 }
 
 
@@ -50,21 +47,20 @@
 }
 
 .time {
-  font-family: 'Montserrat';
-    font-size: var(--body-font-size);
+    font-size: var(--small-font-size);
     color: #000;
     font-weight: normal;
     /* margin-right: 10px; */
     line-height: 16px;
     /* width: 40px; */
-    padding: 12px 8px 11px 0;
+    padding: 3px 8px 11px 0;
  
 }
 
-.Cell__children, .Cell__description {
-  font-size: var(--body-font-size)  !important;
-}
 
+.Cell--ios .Cell__in {
+  padding: 0px 12px 0px 12px;
+}
 
 .calendarWrapper {
   margin-top: 20px;
@@ -73,6 +69,7 @@
 .calendarHeader {
   font-weight: bold;
   margin-left: 12px;
+  margin-bottom: 12px;
 }
 
 .Tabs {
@@ -81,7 +78,7 @@
 
 .Tabs--default .TabsItem {
     font-size: var(--body-font-size);
-    font-weight: 600;
+    font-weight: 400;
     line-height: 20px;
     max-width: 100%;
     flex-basis: 0;
@@ -93,4 +90,10 @@
 
 .Tabs--default .TabsItem--selected::after {
   display: none;
+}
+
+.abonement {
+  width: 144;
+  color: black;
+  padding: 12px;
 }
