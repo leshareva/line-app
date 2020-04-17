@@ -11,7 +11,7 @@
   --big-font-line-height: calc(var(--wrapper-padding) * 4);
   --lead-font-size: 22px;
   --lead-font-line-height: calc(var(--wrapper-padding) * 3);
-  --body-font-size: 18px;
+  --body-font-size: 16px;
   --body-font-line-height: calc(var(--wrapper-padding) * 3);
   --small-font-size: 14px;
   --small-font-line-height: calc(var(--wrapper-padding) * 2);
@@ -135,12 +135,12 @@ p {
 }
 .Cell--ios .Cell__in {
   padding: var(--wrapper-padding) var(--wrapper-padding-2x) var(--wrapper-padding) var(--wrapper-padding-2x);
-  font-variant-numeric: oldstyle-nums;
-  font-feature-settings: "onum";
-  -moz-font-feature-settings: "onum=1";
-  -ms-font-feature-settings: "onum";
-  -webkit-font-feature-settings: "onum";
-  -o-font-feature-settings: "onum";
+  font-variant-numeric: oldstyle-nums !important;
+  font-feature-settings: "onum" !important;
+  -moz-font-feature-settings: "onum=1" !important;
+  -ms-font-feature-settings: "onum" !important;
+  -webkit-font-feature-settings: "onum" !important;
+  -o-font-feature-settings: "onum" !important;
 }
 
 .Cell--ios .Cell__main {
@@ -148,7 +148,7 @@ p {
 }
 
 .Cell--ios.Cell--m .Cell__before-in>.Avatar {
-  padding: 0 var(--wrapper-padding-2x) 0 0;
+  padding: 0 var(--wrapper-padding) 0 0;
 }
 
 .Cell__description {
