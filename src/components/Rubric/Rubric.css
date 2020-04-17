@@ -3,27 +3,17 @@
   --like_text_tint: #770efd !important;
   --header_background: none !important;
   --action_sheet_separator: none !important;
-  
-}
-
-
-.rubricPost {
-  white-space: pre-line;
-  font-size: 16px;
-  line-height: 137%;
-  
 }
 
 .postCover {
   width: 100%;
   height: auto;
-  margin-top: 16px;
+  margin-top: var(--wrapper-padding-2x);
 }
 
 .decWrapper {
-  /* width: 100%; */
-  padding-left: 20px;
-  padding-right: 20px;
+  padding-left: var(--wrapper-padding-2x);
+  padding-right: var(--wrapper-padding-2x);
   background-color: var(--background_content);
 }
 
@@ -31,45 +21,22 @@
   white-space: pre-wrap;
 }
 
-
-
-
 .progressBar {
-  margin: 0 14px;
+  margin: 0 var(--wrapper-padding-2x);
 }
 
 .cardWrapper {
-  padding: 20px;
-}
-
-.Cell__before {
-  align-items: flex-start;
-}
-
-.time {
-    font-size: var(--small-font-size);
-    color: #000;
-    font-weight: normal;
-    /* margin-right: 10px; */
-    line-height: 16px;
-    /* width: 40px; */
-    padding: 3px 8px 11px 0;
- 
-}
-
-
-.Cell--ios .Cell__in {
-  padding: 0px 12px 0px 12px;
+  padding: var(--wrapper-padding-2x);
 }
 
 .calendarWrapper {
-  margin-top: 20px;
+  margin-top: var(--wrapper-padding-2x);
 }
 
 .calendarHeader {
   font-weight: bold;
-  margin-left: 12px;
-  margin-bottom: 12px;
+  margin-left: var(--wrapper-padding-2x);
+  margin-bottom: var(--wrapper-padding-2x);
 }
 
 .Tabs {
@@ -77,15 +44,15 @@
 }
 
 .Tabs--default .TabsItem {
-    font-size: var(--body-font-size);
-    font-weight: 400;
-    line-height: 20px;
-    max-width: 100%;
-    flex-basis: 0;
-    flex-grow: unset;
-    position: relative;
-    padding-left: 11px;
-    padding-right: 16px;
+  font-size: var(--body-font-size);
+  font-weight: 400;
+  line-height: var(--body-font-line-height);
+  max-width: 100%;
+  flex-basis: 0;
+  flex-grow: unset;
+  position: relative;
+  padding-left: var(--wrapper-padding-2x);
+  padding-right: var(--wrapper-padding-2x);
 }
 
 .Tabs--default .TabsItem--selected::after {
@@ -95,5 +62,5 @@
 .abonement {
   width: 144;
   color: black;
-  padding: 12px;
+  padding: 16px;
 }

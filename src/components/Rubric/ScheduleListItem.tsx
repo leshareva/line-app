@@ -16,11 +16,11 @@ export default class ScheduleListItem extends React.Component<iScheduleListItem,
             multiline
             onClick={() => onCellClick(lesson)}
             data-to='lesson'
-            before={<div className="time">{lesson['Время']}<br /><span style={{ color: "#cccccc" }}>{lesson['Окончание']}  <br /> МСК</span></div>}
+            before={<div className="time"></div>}
 
-            description={lesson['Описание'].substring(0, 70)}
+            description={`${lesson['Время']}–${lesson['Окончание']} ${lesson['Описание'].substring(0, 70)}`}
         >
-            {lesson['Name']}
+            {`${lesson['Name']}`}
         </Cell>
     }
 

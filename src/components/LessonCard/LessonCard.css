@@ -19,7 +19,6 @@
 } */
 
 .bottomBar {
-  padding: 0;
   text-align: left;
   color: var(--button_primary_background)
 }

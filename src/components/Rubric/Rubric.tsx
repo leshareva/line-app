@@ -1,5 +1,5 @@
 import React from 'react';
-import { Panel, Div, Spinner, Card, CardScroll } from '@vkontakte/vkui';
+import { Panel, Div, Spinner, Card } from '@vkontakte/vkui';
 import { base } from '../../airtable/airtable';
 import "./Rubric.css";
 import Cover from '../Cover/Cover';
@@ -24,11 +24,7 @@ class Rubric extends React.Component<any, any> {
 
 
 	async componentDidMount() {
-		await this.getPurchases()
-			.then(data => {
-				this.setState({ purchases: data });
-				return
-			})
+		
 
 		await this.getLessons().then(data => {
 
@@ -39,6 +35,12 @@ class Rubric extends React.Component<any, any> {
 
 			return
 		})
+
+		await this.getPurchases()
+			.then(data => {
+				this.setState({ purchases: data });
+				return
+			})
 
 		if (this.props.rubric && this.props.rubric['Товар']) {
 
@@ -139,6 +141,7 @@ class Rubric extends React.Component<any, any> {
 	}
 
 
+
 	select(e) {
 		const mode = e.currentTarget.dataset.mode;
 		this.setState({ mode });
@@ -207,7 +210,7 @@ class Rubric extends React.Component<any, any> {
 				<Cover background={cover()} height="fit-content">
 					<Div className="desc">
 						<h1>{rubric['Название']}</h1>
-						<div className="lead"><CardScroll>{this.renderAbonement()}</CardScroll></div>
+						{/* <div className="lead"><CardScroll>{this.renderAbonement()}</CardScroll></div> */}
 					</Div>
 				</Cover>
 

@@ -1,15 +1,22 @@
 :root {
+  --wrapper-padding-2x: 16px;
+  --wrapper-padding: 8px;
   --text_secondary: #96a4bd;
   --header_background: none !important;
   --icon_secondary: #d5dce7;
   --button_primary_background: #e03800;
-  --font-header: "Montserrat", sans-serif;
-  --font-ios: "Source Sans Pro", sans-serif;
-  --big-font-size: 32px;
+  /* --font-header: "Montserrat", sans-serif; */
+  --font-ios: "Montserrat", sans-serif;
+  --big-font-size: 40px;
+  --big-font-line-height: calc(var(--wrapper-padding) * 4);
   --lead-font-size: 22px;
-  --body-font-size: 16px;
-  --small-font-size: 12px;
+  --lead-font-line-height: calc(var(--wrapper-padding) * 3);
+  --body-font-size: 18px;
+  --body-font-line-height: calc(var(--wrapper-padding) * 3);
+  --small-font-size: 14px;
+  --small-font-line-height: calc(var(--wrapper-padding) * 2);
   --link_alternate:  #e03800;
+ 
 }
 
 
@@ -23,8 +30,10 @@
 body  {
   font-size: var(--body-font-size);
   font-family: var(--font-ios);
-  line-height: 146%;
+  line-height: var(--body-font-line-height) !important;
 }
+
+
 
 
 
@@ -43,25 +52,12 @@ body  {
 
 
 
-.Cell__description {
-  color: var(--text_secondary);
-  line-height: 116% !important;
-  font-size: var(--font-ios) !important;
-}
-
 .marketImage .Avatar__in img {
   width: 100% !important;
   height: 100% !important;
 }
 
-.bottomBar {
-  height: 60px;
-  vertical-align: middle;
-  background-color: white;
-  width: 100vw;
-  text-align: center;
-  padding: 8px 16px;
-}
+
 
 .Button {
   border: 2px solid;
@@ -80,6 +76,15 @@ body  {
   font-size: var(--lead-font-size);
 }
 
+.bottomBar {
+  height: calc(var(--wrapper-padding) * 8);
+  vertical-align: middle;
+  background-color: white;
+  width: 100vw;
+  text-align: center;
+  padding: var(--wrapper-padding) var(--wrapper-padding-2x);
+}
+
 .bottomBar .Button {
   display: inline-block;
 }
@@ -88,7 +93,7 @@ body  {
   color: var(--button_primary_background);
   text-decoration: none;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  font-size: 14px;
+  font-size: var(--small-font-size);
   font-weight: bold;
 }
 
@@ -104,7 +109,7 @@ body  {
 h1 {
   font-family: var(--font-header);
   font-size: var(--big-font-size);
-  line-height: 100%;
+  line-height: var(--big-font-line-height);
   margin: 0;
 }
 
@@ -116,8 +121,8 @@ h2 {
 }
 
 .lead {
-  font-size: 20px;
-  line-height: 100%;
+  font-size: var(--lead-font-size);
+  line-height: var(--lead-font-line-height);
 }
 
 p {
@@ -126,7 +131,31 @@ p {
 
 .Cell__children {
   font-size: var(--body-font-size);
-  line-height: 120%;
+  line-height: var(--body-font-line-height);
+}
+.Cell--ios .Cell__in {
+  padding: var(--wrapper-padding) var(--wrapper-padding-2x) var(--wrapper-padding) var(--wrapper-padding-2x);
+  font-variant-numeric: oldstyle-nums;
+  font-feature-settings: "onum";
+  -moz-font-feature-settings: "onum=1";
+  -ms-font-feature-settings: "onum";
+  -webkit-font-feature-settings: "onum";
+  -o-font-feature-settings: "onum";
+}
+
+.Cell--ios .Cell__main {
+  padding: 0;
+}
+
+.Cell--ios.Cell--m .Cell__before-in>.Avatar {
+  padding: 0 var(--wrapper-padding-2x) 0 0;
+}
+
+.Cell__description {
+  color: var(--text_secondary);
+  font-size: var(--body-font-size) !important;
+  line-height: var(--body-font-line-height) !important;
+  margin-top: 0;
 }
 
 a:-webkit-any-link {
@@ -138,4 +167,6 @@ a:-webkit-any-link {
 .PanelHeader-left-in {
   color: white;
 }
+
+
 

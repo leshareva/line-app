@@ -6,8 +6,8 @@
   color: white;
   font-style: normal;
   padding: 0;
-  margin-top: calc(0px - var(--panelheader_height_ios) - 21px);
-  padding-top: 21px;
+  margin-top: calc(0px - var(--panelheader_height_ios) - (var(--wrapper-padding) * 3));
+  padding-top: calc(var(--wrapper-padding) * 3);
   position: relative;
   display: flex;
   flex-flow: column;
@@ -31,14 +31,14 @@
 }
 
 .cover h1 {
-  margin: 40px 0 8px 0;
+  margin: calc(var(--wrapper-padding) * 5) 0 var(--wrapper-padding) 0;
 }
 
 .cover a {
   color: white;
   text-decoration: none;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  font-size: 12px;
+  font-size: var(--small-font-size);
 }
 
 .coverContainer {
