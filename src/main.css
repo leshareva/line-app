@@ -15,28 +15,19 @@
   --body-font-line-height: calc(var(--wrapper-padding) * 3);
   --small-font-size: 14px;
   --small-font-line-height: calc(var(--wrapper-padding) * 2);
-  --link_alternate:  #e03800;
- 
+  --link_alternate: #e03800;
 }
-
 
 .header {
   --separator_alpha: none !important;
   --like_text_tint: #770efd !important;
 }
 
-
-
-body  {
+body {
   font-size: var(--body-font-size);
   font-family: var(--font-ios);
   line-height: var(--body-font-line-height) !important;
 }
-
-
-
-
-
 
 .PanelHeader-bg {
   display: none !important;
@@ -50,14 +41,10 @@ body  {
   color: var(--text_secondary);
 }
 
-
-
 .marketImage .Avatar__in img {
   width: 100% !important;
   height: 100% !important;
 }
-
-
 
 .Button {
   border: 2px solid;
@@ -97,7 +84,6 @@ body  {
   font-weight: bold;
 }
 
-
 .Group {
   padding: 0px 0px 16px 0px;
 }
@@ -134,7 +120,8 @@ p {
   line-height: var(--body-font-line-height);
 }
 .Cell--ios .Cell__in {
-  padding: var(--wrapper-padding) var(--wrapper-padding-2x) var(--wrapper-padding) var(--wrapper-padding-2x);
+  padding: var(--wrapper-padding) var(--wrapper-padding-2x)
+    var(--wrapper-padding) var(--wrapper-padding-2x);
   font-variant-numeric: oldstyle-nums !important;
   font-feature-settings: "onum" !important;
   -moz-font-feature-settings: "onum=1" !important;
@@ -147,8 +134,8 @@ p {
   padding: 0;
 }
 
-.Cell--ios.Cell--m .Cell__before-in>.Avatar {
-  padding: 0 var(--wrapper-padding) 0 0;
+.Cell--ios.Cell--m .Cell__before-in > .Avatar {
+  padding: 0 var(--wrapper-padding-2x) 0 0;
 }
 
 .Cell__description {
@@ -156,17 +143,16 @@ p {
   font-size: var(--body-font-size) !important;
   line-height: var(--body-font-line-height) !important;
   margin-top: 0;
+  max-height: calc(var(--body-font-line-height) * 2);
+  overflow: hidden;
 }
 
 a:-webkit-any-link {
   color: #e03800;
-  border-bottom: 1px solid rgba(222, 58,24,0.2);
+  border-bottom: 1px solid rgba(222, 58, 24, 0.2);
   text-decoration: none;
 }
 
 .PanelHeader-left-in {
   color: white;
 }
-
-
-
