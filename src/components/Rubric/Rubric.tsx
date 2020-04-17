@@ -24,7 +24,7 @@ class Rubric extends React.Component<any, any> {
 
 
 	async componentDidMount() {
-		
+
 
 		await this.getLessons().then(data => {
 
@@ -223,7 +223,7 @@ class Rubric extends React.Component<any, any> {
 				/>
 
 				{(this.state.activeTab === 'desc' && rubric['Описание'])
-					? <Div><ReactMarkdown source={rubric['Описание']} /> </Div>
+					? <Div style={{ paddingLeft: 'var(--wrapper-padding-2x)' }}><ReactMarkdown source={rubric['Описание']} /> </Div>
 					: null
 				}
 
@@ -233,9 +233,9 @@ class Rubric extends React.Component<any, any> {
 
 
 				{(() => {
-					if (this.state.activeTab === 'schedule'&&!this.state.lessons) return <Spinner size="medium" style={{ marginTop: 20 }} />
+					if (this.state.activeTab === 'schedule' && !this.state.lessons) return <Spinner size="medium" style={{ marginTop: 20 }} />
 					if (this.state.activeTab !== 'schedule') return;
-					
+
 
 					return <ScheduleList
 						lessons={this.state.lessons}
