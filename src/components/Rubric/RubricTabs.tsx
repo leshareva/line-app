@@ -1,5 +1,5 @@
 import React from 'react'
-import { Tabs, TabsItem } from '@vkontakte/vkui'
+import { Tabs, TabsItem, HorizontalScroll } from '@vkontakte/vkui'
 
 interface iRubricTabs {
     rubric: any
@@ -14,6 +14,7 @@ export default class RubricTabs extends React.Component<iRubricTabs, any> {
         let { rubric, history, onClickHandler, selectedTab } = this.props
 
         return <Tabs>
+            <HorizontalScroll>
             {(rubric['Тренировки'])
                 ?
                 <TabsItem
@@ -43,6 +44,8 @@ export default class RubricTabs extends React.Component<iRubricTabs, any> {
 
             }
 
+            </HorizontalScroll>
+            
         </Tabs>
     }
 }
