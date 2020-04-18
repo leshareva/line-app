@@ -55,6 +55,7 @@ class App extends React.Component<any, any> {
 			switch (e.detail.type) {
 				case 'VKWebAppGetUserInfoResult':
 					this.setState({ rubrics: await this.fetchRubricsData() })
+					this.setState({ history: await this.fetchHistoryData(this.state.rubrics, e.detail.data) })
 					this.setState({ user: Object.assign(e.detail.data, await this.fetchUserData(e.detail.data)) })
 					this.setState({ isLoading: false })
 					break;
@@ -75,7 +76,7 @@ class App extends React.Component<any, any> {
 
 
 	componentWillUnmount() {
-		connect.unsubscribe((data)=>{
+		connect.unsubscribe((data) => {
 			console.log(data)
 		});
 	}
@@ -108,6 +109,23 @@ class App extends React.Component<any, any> {
 			return obj
 		})
 	}
+
+
+	async fetchHistoryData(rubrics: any[], user: any) {
+		let proms = rubrics.map(rubric =>
+			base.list(
+				rubric['Таблица'],
+				{
+					view: 'Последний месяц',
+					sort: [{ field: 'Датавремя', direction: 'desc' }],
+					maxRecords: 10,
+					filterByFormula: `{VK-ID} = ${user.id}`
+				})
+		)
+
+		return Promise.all(proms).then((res: Array<[]>) => [].concat(...res))
+	}
+
 
 	onStoryChange = (e) => this.setState({ activeStory: e.currentTarget.dataset.story })
 
@@ -163,13 +181,11 @@ class App extends React.Component<any, any> {
 					history={history}
 				/>
 				<Rubric
-					id="rubric"
+					id='rubric'
 					user={this.state.user}
 					rubric={this.state.meta}
-					post={this.state.post}
 					go={this.go}
-					rubricCellClickHandler = {this.onRubricCellClickHandler}
-					history={history}
+					rubricCellClickHandler={this.onRubricCellClickHandler}
 				/>
 				<LessonCard
 					id="lesson"

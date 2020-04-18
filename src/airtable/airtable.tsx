@@ -2,6 +2,17 @@
 import * as air from 'airtable';
 import { AIR_CONFIG } from './config';
 
+
+
+interface iSort { field: string, direction: "desc" | "asc" }
+interface iAirtableListOptions {
+    filterByFormula?: string, //  `{key} = "value"` //TO-DO: обработу numbers и strings в значении value
+    fields?: Array<string>,
+    sort?: iSort[],
+    view?: string,
+    maxRecords?: number
+}
+
 class Airtable extends air {
 
     private base
@@ -13,16 +24,15 @@ class Airtable extends air {
         this._config = config
     }
 
-    list(listName: string, options?: { filterByFormula?: string, fields?: Array<string>, sort?: string, view?: string }) {
-        //sort: [{field: "Имя", direction: "desc" || "asc" }]
+
+    list(listName: string, options?: iAirtableListOptions) {
+
         return new Promise<Array<any>>((resolve, reject) => {
             let cells = []
-            // let opt = { filterByFormula: `{${key}} = "${value}"` } //TO-DO: обработу numbers и strings в значении value
-
+        
             this.base(listName).select(options ? options : {})
                 .eachPage(function page(records, fetchNextPage) {
                     records
-                        // .filter(record => record.get(key) === value)
                         .forEach(el => {
                             el.fields.recID = el.id
                             cells.push(el.fields)

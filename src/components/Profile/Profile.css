@@ -64,7 +64,7 @@
 }
 
 .amountWrapper {
-  margin-left: var(--wrapper-padding-2x);
+  margin-left: var(--wrapper-padding);
   height: calc(var(--wrapper-padding) * 9);
 }
 

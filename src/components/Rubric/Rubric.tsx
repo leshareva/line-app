@@ -1,5 +1,5 @@
 import React from 'react';
-import { Panel, Div, Spinner, Card } from '@vkontakte/vkui';
+import { Panel, Div, Card, Group, Progress, InfoRow } from '@vkontakte/vkui';
 import { base } from '../../airtable/airtable';
 import "./Rubric.css";
 import Cover from '../Cover/Cover';
@@ -8,52 +8,53 @@ import Navbar from '../Navbar/Navbar';
 
 import RubricTabs from './RubricTabs';
 import ScheduleList from './ScheduleList';
-import HistoryList from './HistoryList';
+import HistoryList from '../HistoryList';
 
 
-class Rubric extends React.Component<any, any> {
+interface iRubricPage {
+	id: string
+	user: any
+	rubric: any
+	go: (e: React.MouseEvent<HTMLElement>) => void
+	rubricCellClickHandler: (dataTo: string, metaData: any) => void
+}
+
+
+class Rubric extends React.Component<iRubricPage, any> {
 
 
 	state = {
 		purchases: null,
 		lessons: null,
-		activeTab: 'desc',
-		goods: null
+		activeTab: null,
+		goods: null,
+		history: []
 	}
 
 
 
 	async componentDidMount() {
+		let { rubric } = this.props
+		const lessons = await this.getLessons()
 
+		this.setState({ lessons: lessons });
 
-		await this.getLessons().then(data => {
+		let history = await this.fetchHistoryData(this.props.user.id, rubric['recID'], rubric['Таблица'])
+		this.setState({ history: history })
 
-			if (Object.keys(data).length !== 0) {
-				this.setState({ activeTab: 'schedule' })
-			}
-			this.setState({ lessons: data });
-
-			return
-		})
-
-		await this.getPurchases()
-			.then(data => {
-				this.setState({ purchases: data });
-				return
-			})
-
-		if (this.props.rubric && this.props.rubric['Товар']) {
-
-			let promise = this.props.rubric['Товар'].map(recID => {
-				return base.find(recID, 'Товары')
-			})
-
-			Promise.all(promise).then(res => {
-				this.setState({ goods: res });
-			})
-
+		if (Object.keys(lessons).length !== 0) {
+			this.setState({ activeTab: 'schedule' })
+		} else if (history.length !== 0) {
+			this.setState({ activeTab: 'history' })
+		} else {
+			this.setState({ activeTab: 'desc' })
 		}
+
+		this.setState({ purchases: await this.getPurchases() });
 	}
+
+
+
 
 
 	componentWillUnmount() {
@@ -83,7 +84,11 @@ class Rubric extends React.Component<any, any> {
 	}
 
 
-
+	async fetchHistoryData(userID: number, rubricID: string, rubricTable: string) {
+		return base.list(rubricTable, { filterByFormula: `AND({VK-ID} = ${userID}, NOT({Рубрика}=BLANK()))` }).then((history: any[]) => {
+			return history.filter(item => item['Рубрика'][0] === rubricID)
+		}).catch(e => [])
+	}
 
 	getLessons = async () => {
 		if (!this.props.rubric) return;
@@ -190,12 +195,7 @@ class Rubric extends React.Component<any, any> {
 		let {
 			go,
 			rubric,
-			history
 		} = this.props
-
-		let h = history ? history.filter(el => el.rubric === rubric['Название']) : []
-
-
 
 
 
@@ -208,35 +208,40 @@ class Rubric extends React.Component<any, any> {
 				<Navbar go={go} dataTo='profile'></Navbar>
 
 				<Cover background={cover()} height="fit-content">
-					<Div className="desc">
-						<h1>{rubric['Название']}</h1>
-						{/* <div className="lead"><CardScroll>{this.renderAbonement()}</CardScroll></div> */}
-					</Div>
+					<Div className="desc"><h1>{rubric['Название']}</h1></Div>
 				</Cover>
 
 
 				<RubricTabs
 					rubric={rubric}
 					selectedTab={this.state.activeTab}
-					history={history}
+					history={this.state.history}
 					onClickHandler={(tabName) => this.setState({ activeTab: tabName })}
 				/>
 
+				{(() => {
+					if (!rubric['Итог опыт'] || !this.state.history) return
+
+					let exp = this.state.history.filter(el => el['Опыт']).map(el => el['Опыт'][0]).reduce((current, next) => current + next, 0);
+					return <Group title="Прогресс" className="progressBarContainer">
+						<InfoRow header={`${Math.round((exp * 100) / rubric['Итог опыт'])}%`} className="progressBar">
+							<Progress value={(exp * 100) / rubric['Итог опыт']} style={{ width: '100%' }} />
+						</InfoRow>
+					</Group>
+				})()}
+
 				{(this.state.activeTab === 'desc' && rubric['Описание'])
 					? <Div style={{ paddingLeft: 'var(--wrapper-padding-2x)' }}><ReactMarkdown source={rubric['Описание']} /> </Div>
-					: null
+					: ''
 				}
 
 
 
-				{(this.state.activeTab === 'history') ? <HistoryList history={h} rubric={rubric} /> : null}
+				{(this.state.activeTab === 'history') ? <HistoryList history={this.state.history} rubric={rubric} /> : ''}
 
 
 				{(() => {
-					if (this.state.activeTab === 'schedule' && !this.state.lessons) return <Spinner size="medium" style={{ marginTop: 20 }} />
 					if (this.state.activeTab !== 'schedule') return;
-
-
 					return <ScheduleList
 						lessons={this.state.lessons}
 						onCellClick={(e) => this.onCellClickHandler(e)}

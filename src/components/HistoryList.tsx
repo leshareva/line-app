@@ -1,9 +1,9 @@
 import React from 'react'
-import { Header, Group, Cell, Div, List, InfoRow, Progress } from '@vkontakte/vkui'
+import { Header, Group, Cell, Div, List} from '@vkontakte/vkui'
+import { star } from '../icons'
 
 interface iHistoryList {
     history: any[]
-    rubric: any
 }
 export default class HistoryList extends React.Component<iHistoryList, any>{
 
@@ -58,28 +58,20 @@ export default class HistoryList extends React.Component<iHistoryList, any>{
 
     render() {
 
-        let { history, rubric } = this.props
+        let { history } = this.props
 
-        let cellHistory = this.parseHistory(history);
-        let exp = history.filter(el => el['Опыт']).map(el => el['Опыт'][0]).reduce((current, next) => current + next);
         return <>
-            <Group title="Прогресс" className="progressBarContainer">
-                <InfoRow header={`${Math.round((exp * 100) / rubric['Итог опыт'])}%`} className="progressBar">
-                    <Progress value={(exp * 100) / rubric['Итог опыт']} style={{ width: '100%' }} />
-                </InfoRow>
-            </Group>
-            <Group header={<Header mode="secondary">История</Header>} className="history">
+            
+
+            <Group header={<Header mode="secondary">Начисления</Header>} className="history">
                 {(() => {
                     if (history.length === 0) {
                         return <Div>Вы пока не участвовали ни в одной активности в этой рубрике.</Div>
                     }
-                    return <List> {cellHistory} </List>
+                    return <List> {this.parseHistory(history)} </List>
                 })()}
 
             </Group>
-
-
-
         </>
 
 
