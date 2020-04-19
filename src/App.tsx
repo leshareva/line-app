@@ -1,6 +1,6 @@
 import React from 'react';
 import connect from '@vkontakte/vk-connect';
-import { platform, ANDROID, View, ModalRoot, ModalCard } from '@vkontakte/vkui';
+import { platform, ANDROID, View, ModalRoot } from '@vkontakte/vkui';
 
 import { base } from './airtable/airtable';
 import { R_VK_ID } from './airtable/constants';
@@ -17,6 +17,7 @@ import LessonCard from './components/LessonCard/LessonCard';
 import * as Typograf from 'typograf';
 import { ProgressSnackBar } from './components/ProgressSnackbar/ProgressSnackBar';
 import { iModalData } from './interfaces';
+import ModalCardComponent from './components/ModalCardComponent';
 
 
 const tp = new Typograf({ locale: ['ru', 'en-US'] });
@@ -196,25 +197,18 @@ class App extends React.Component<any, any> {
 		const { user, isLoading, history, rubrics, achieves } = this.state;
 		if (!user || isLoading) return splashLoader;
 
-		const modal = (<ModalRoot
-			activeModal={this.state.activeModal}
-			onClose={() => this.setState({ activeModal: null })}
-		>
+		const modal =
+			(<ModalRoot
+				activeModal={this.state.activeModal}
+				onClose={() => this.setState({ activeModal: null })}
+			>
 
-			<ModalCard
-				id='modal'
-				onClose={() => this.setActiveModal(null)}
-				header={this.state.modalData ? this.state.modalData.title : ''}
-				caption={this.state.modalData ? this.state.modalData.desc : ''}
-				actions={[{
-					title: this.state.modalData ? this.state.modalData.buttonLabel : '',
-					mode: 'primary',
-					action: () => this.state.modalData ? this.state.modalData.onButtonClickHandler : null
-				}]}
-			>{this.state.modalData ? this.state.modalData.body : ''}</ModalCard>
-			
-		</ModalRoot>
-		)
+				<ModalCardComponent
+					id='modal'
+					onClose={() => this.setActiveModal(null)}
+					modalData={this.state.modalData} />
+
+			</ModalRoot>)
 
 		return (
 			<View id="main" activePanel={this.state.activeView} modal={modal}>

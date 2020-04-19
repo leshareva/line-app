@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Panel, Cell, List, PanelHeader, Group, Avatar, platform, ANDROID, CardGrid, Card } from '@vkontakte/vkui'
+import { Panel, Cell, List, PanelHeader, Group, Avatar, platform, ANDROID } from '@vkontakte/vkui'
 import Icon24BrowserForward from '@vkontakte/icons/dist/24/browser_forward'
 import "./Profile.css"
 import Cover from '../Cover/Cover'

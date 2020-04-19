@@ -12,3 +12,16 @@ export interface iModalData {
 	buttonLabel: string
 	body?: any
 }
+
+
+export interface iAchieve {
+    recID: string
+    'Кол-во работ': number
+    'RubricID': string[]
+    'Name': string
+    'Описание': string
+    'Оценка': number
+	'Таблица': string
+	achievedItems?: any[]
+	done?: boolean
+}
