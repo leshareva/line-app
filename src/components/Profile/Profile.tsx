@@ -8,6 +8,8 @@ import { star, logo } from '../../icons'
 import LevelBubble from './LevelBubble/LevelBubble'
 import ProfileTabs from './ProfileTabs'
 import HistoryList from '../HistoryList'
+import TodoCardsList from './ToDoCardList'
+import { iModalData } from '../../interfaces'
 
 
 
@@ -20,6 +22,7 @@ interface iProfilePage {
     openSnackbar: () => void
     history: any[]
     achieves: any[]
+    openModal: (modal: { type: string, data: iModalData }) => void
 }
 
 
@@ -42,7 +45,8 @@ class Profile extends React.Component<iProfilePage, any> {
             rubrics,
             openSnackbar,
             snackbar,
-            achieves
+            achieves,
+            openModal
         } = this.props
 
         return (
@@ -66,36 +70,7 @@ class Profile extends React.Component<iProfilePage, any> {
 
                 <ProfileTabs history={this.props.history} selectedTab={this.state.selectedTab} onClickHandler={(tabName) => this.setState({ selectedTab: tabName })} />
 
-                {
-                    (() => {
-                        if (this.state.selectedTab !== 'tasks') return
-
-                        return <Group title="Задания" separator="hide">
-                            <CardGrid >
-                                {
-                                    achieves.map((el, i) => {
-                                        let size: "s" | "m" | "l" = "s";
-                                        if (i === 0 || i === 6) size = 'l'
-                                        if (i === 1 || i === 2) size = 'm'
-                                        let style = {
-                                            padding: 'var(--wrapper-padding-2x)',
-                                            height: 'fit-content'
-                                        }
-                                        return <Card size={size} key={el.recID}>
-                                            <div style={style}>
-                                                <div className="Cell__children">{el['Name']}</div>
-                                                {el['Описание']}
-                                                <br />
-                                                <br />
-                                        Выполнено
-                                    </div>
-                                        </Card>
-                                    })
-                                }
-                            </CardGrid>
-                        </Group>
-                    })()
-                }
+                {(this.state.selectedTab === 'tasks') ? <TodoCardsList achieves={achieves} openModal={openModal} user={user} /> : ''}
 
 
                 {(() => {
@@ -118,9 +93,6 @@ class Profile extends React.Component<iProfilePage, any> {
                         </Group>
                     }
                 })()}
-
-
-
 
 
                 {(this.props.history.length !== 0 && this.state.selectedTab === 'history') ? <HistoryList history={this.props.history} /> : ''}

@@ -1,6 +1,6 @@
 import React from 'react';
 import connect from '@vkontakte/vk-connect';
-import { platform, ANDROID, View } from '@vkontakte/vkui';
+import { platform, ANDROID, View, ModalRoot, ModalCard } from '@vkontakte/vkui';
 
 import { base } from './airtable/airtable';
 import { R_VK_ID } from './airtable/constants';
@@ -16,6 +16,7 @@ import Profile from './components/Profile/Profile';
 import LessonCard from './components/LessonCard/LessonCard';
 import * as Typograf from 'typograf';
 import { ProgressSnackBar } from './components/ProgressSnackbar/ProgressSnackBar';
+import { iModalData } from './interfaces';
 
 
 const tp = new Typograf({ locale: ['ru', 'en-US'] });
@@ -25,14 +26,20 @@ const splashLoader = <div style={{ width: '100%', height: '100%', backgroundColo
 const osname = platform();
 
 
+
+
 class App extends React.Component<any, any> {
 
 	constructor(props) {
 		super(props);
 
+
+
 		this.state = {
 			user: null,
 			activeView: 'profile',
+			activeModal: null,
+			modalData: null as iModalData,
 			authToken: null,
 			isLoading: false,
 			history: [],
@@ -45,8 +52,22 @@ class App extends React.Component<any, any> {
 
 		this.openSnackbar = this.openSnackbar.bind(this);
 		this.onStoryChange = this.onStoryChange.bind(this);
+		this.setActiveModal = this.setActiveModal.bind(this);
 
 	}
+
+
+
+	setActiveModal(modal: { type: string, data: iModalData }) {
+		let activeModal = modal ? modal.type : null
+		let modalData = modal ? modal.data : null
+		this.setState({
+			activeModal,
+			modalData
+		})
+	}
+
+
 
 	async componentDidMount() {
 
@@ -175,8 +196,28 @@ class App extends React.Component<any, any> {
 		const { user, isLoading, history, rubrics, achieves } = this.state;
 		if (!user || isLoading) return splashLoader;
 
+		const modal = (<ModalRoot
+			activeModal={this.state.activeModal}
+			onClose={() => this.setState({ activeModal: null })}
+		>
+
+			<ModalCard
+				id='modal'
+				onClose={() => this.setActiveModal(null)}
+				header={this.state.modalData ? this.state.modalData.title : ''}
+				caption={this.state.modalData ? this.state.modalData.desc : ''}
+				actions={[{
+					title: this.state.modalData ? this.state.modalData.buttonLabel : '',
+					mode: 'primary',
+					action: () => this.state.modalData ? this.state.modalData.onButtonClickHandler : null
+				}]}
+			>{this.state.modalData ? this.state.modalData.body : ''}</ModalCard>
+			
+		</ModalRoot>
+		)
+
 		return (
-			<View id="main" activePanel={this.state.activeView}>
+			<View id="main" activePanel={this.state.activeView} modal={modal}>
 				<Profile
 					id="profile"
 					snackbar={this.state.snackbar}
@@ -186,6 +227,7 @@ class App extends React.Component<any, any> {
 					user={user}
 					history={history}
 					achieves={achieves}
+					openModal={(modal) => this.setActiveModal(modal)}
 				/>
 				<Rubric
 					id='rubric'
