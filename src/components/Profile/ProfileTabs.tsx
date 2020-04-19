@@ -1,5 +1,5 @@
 import React from 'react'
-import { Tabs, TabsItem } from '@vkontakte/vkui'
+import { Tabs, TabsItem, HorizontalScroll } from '@vkontakte/vkui'
 
 interface iProfileTabs {
     history: any[]
@@ -13,20 +13,25 @@ export default class ProfileTabs extends React.Component<iProfileTabs, any> {
         let { history, onClickHandler, selectedTab } = this.props
 
         return <Tabs>
+            <HorizontalScroll>
+                <TabsItem
+                    onClick={() => onClickHandler('tasks')}
+                    selected={selectedTab === 'tasks'}
+                >Задания</TabsItem>
 
-            <TabsItem
-                onClick={() => onClickHandler('rubrics')}
-                selected={selectedTab === 'rubrics'}
-            >Рубрики</TabsItem>
+                <TabsItem
+                    onClick={() => onClickHandler('rubrics')}
+                    selected={selectedTab === 'rubrics'}
+                >Рубрики</TabsItem>
 
-            {(history && history.length !== 0)
-                ? <TabsItem
-                    onClick={() => onClickHandler('history')}
-                    selected={selectedTab === 'history'}
-                >Начисления</TabsItem>
-                : null
-            }
-
+                {(history && history.length !== 0)
+                    ? <TabsItem
+                        onClick={() => onClickHandler('history')}
+                        selected={selectedTab === 'history'}
+                    >Начисления</TabsItem>
+                    : null
+                }
+            </HorizontalScroll>
         </Tabs>
     }
 }

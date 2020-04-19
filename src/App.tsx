@@ -39,7 +39,8 @@ class App extends React.Component<any, any> {
 			rubrics: [],
 			meta: {},
 			snackbar: null,
-			purchases: null
+			purchases: null,
+			achieves: null
 		};
 
 		this.openSnackbar = this.openSnackbar.bind(this);
@@ -57,6 +58,7 @@ class App extends React.Component<any, any> {
 					this.setState({ rubrics: await this.fetchRubricsData() })
 					this.setState({ history: await this.fetchHistoryData(this.state.rubrics, e.detail.data) })
 					this.setState({ user: Object.assign(e.detail.data, await this.fetchUserData(e.detail.data)) })
+					this.setState({ achieves: await this.fetchAchieves() })
 					this.setState({ isLoading: false })
 					break;
 				case 'VKWebAppAccessTokenReceived':
@@ -110,6 +112,10 @@ class App extends React.Component<any, any> {
 		})
 	}
 
+
+	fetchAchieves() {
+		return base.list('Ачивки', { filterByFormula: '{Опубликовано} = TRUE()' }).catch(e => [])
+	}
 
 	async fetchHistoryData(rubrics: any[], user: any) {
 		let proms = rubrics.map(rubric =>
@@ -166,7 +172,7 @@ class App extends React.Component<any, any> {
 
 
 	render() {
-		const { user, isLoading, history, rubrics } = this.state;
+		const { user, isLoading, history, rubrics, achieves } = this.state;
 		if (!user || isLoading) return splashLoader;
 
 		return (
@@ -177,12 +183,13 @@ class App extends React.Component<any, any> {
 					openSnackbar={this.openSnackbar}
 					rubrics={rubrics}
 					go={this.go}
-					user={this.state.user}
+					user={user}
 					history={history}
+					achieves={achieves}
 				/>
 				<Rubric
 					id='rubric'
-					user={this.state.user}
+					user={user}
 					rubric={this.state.meta}
 					go={this.go}
 					rubricCellClickHandler={this.onRubricCellClickHandler}

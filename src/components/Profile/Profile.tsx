@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Panel, Cell, List, PanelHeader, Group, Avatar, platform, ANDROID } from '@vkontakte/vkui'
+import { Panel, Cell, List, PanelHeader, Group, Avatar, platform, ANDROID, CardGrid, Card } from '@vkontakte/vkui'
 import Icon24BrowserForward from '@vkontakte/icons/dist/24/browser_forward'
 import "./Profile.css"
 import Cover from '../Cover/Cover'
@@ -19,6 +19,7 @@ interface iProfilePage {
     snackbar: any
     openSnackbar: () => void
     history: any[]
+    achieves: any[]
 }
 
 
@@ -28,7 +29,7 @@ class Profile extends React.Component<iProfilePage, any> {
     constructor(props) {
         super(props)
         this.state = {
-            selectedTab: 'rubrics'
+            selectedTab: 'tasks'
         }
     }
 
@@ -40,7 +41,8 @@ class Profile extends React.Component<iProfilePage, any> {
             go,
             rubrics,
             openSnackbar,
-            snackbar
+            snackbar,
+            achieves
         } = this.props
 
         return (
@@ -64,6 +66,38 @@ class Profile extends React.Component<iProfilePage, any> {
 
                 <ProfileTabs history={this.props.history} selectedTab={this.state.selectedTab} onClickHandler={(tabName) => this.setState({ selectedTab: tabName })} />
 
+                {
+                    (() => {
+                        if (this.state.selectedTab !== 'tasks') return
+
+                        return <Group title="Задания" separator="hide">
+                            <CardGrid >
+                                {
+                                    achieves.map((el, i) => {
+                                        let size: "s" | "m" | "l" = "s";
+                                        if (i === 0 || i === 6) size = 'l'
+                                        if (i === 1 || i === 2) size = 'm'
+                                        let style = {
+                                            padding: 'var(--wrapper-padding-2x)',
+                                            height: 'fit-content'
+                                        }
+                                        return <Card size={size} key={el.recID}>
+                                            <div style={style}>
+                                                <div className="Cell__children">{el['Name']}</div>
+                                                {el['Описание']}
+                                                <br />
+                                                <br />
+                                        Выполнено
+                                    </div>
+                                        </Card>
+                                    })
+                                }
+                            </CardGrid>
+                        </Group>
+                    })()
+                }
+
+
                 {(() => {
                     if (this.state.selectedTab === 'rubrics') {
                         return <Group title="Рубрики" >
@@ -84,6 +118,9 @@ class Profile extends React.Component<iProfilePage, any> {
                         </Group>
                     }
                 })()}
+
+
+
 
 
                 {(this.props.history.length !== 0 && this.state.selectedTab === 'history') ? <HistoryList history={this.props.history} /> : ''}
