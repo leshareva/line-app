@@ -56,12 +56,13 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
             <CardGrid >
                 {
                     achieves.map((el, i) => {
-                        let size: "s" | "m" | "l" = "s";
-                        if (i === 0 || i === 6) size = 'l'
-                        if (i === 1 || i === 2) size = 'm'
+                        let size: "s" | "m" | "l" = "m";
+                        if (i === 0 || i === 3) size = 'l'
+                        // if (i === 1 || i === 2) size = 'm'
                         let style = {
                             padding: 'var(--wrapper-padding-2x)',
-                            height: 'fit-content'
+                            height: size === 'l' ? '120px' : '180px',
+                            fontSize: 'var(--small-font-size)'
                         }
 
                         return <Card size={size} key={el.recID} onClick={() => openModal({
@@ -76,10 +77,10 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
                         })}>
                             <div style={style}>
                                 <div className="Cell__children">{el['Name']}</div>
-                                {el['Описание']}
+                                {el['Короткое описание']}
                                 <br />
                                 <br />
-                                {el['done'] ? '✓ Задание выполнено' : `Выполнено ${el.achievedItems ? el.achievedItems.length : 0} из ${el["Кол-во работ"]}`}
+                                ✓ {el.achievedItems ? el.achievedItems.length : 0} из {el["Кол-во работ"]}
                             </div>
                         </Card>
                     })

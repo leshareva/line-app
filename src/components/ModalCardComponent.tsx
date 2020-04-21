@@ -18,8 +18,7 @@ export default class ModalCardComponent extends React.Component<iModalCardCompon
             caption={this.props.modalData ? this.props.modalData.desc : ''}
             actions={[{
                 title: this.props.modalData ? this.props.modalData.buttonLabel : '',
-                mode: 'primary',
-                action: () => this.props.modalData ? this.props.modalData.onButtonClickHandler : null
+                mode: 'primary', action: () => this.props.modalData ? this.props.modalData.onButtonClickHandler : null
             }]}
         >
             {this.props.modalData ? this.props.modalData.body : ''}

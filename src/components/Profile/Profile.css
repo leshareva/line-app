@@ -66,6 +66,7 @@
 .amountWrapper {
   margin-left: var(--wrapper-padding);
   height: calc(var(--wrapper-padding) * 9);
+  font-size: var(--small-font-size);
 }
 
 .amount {

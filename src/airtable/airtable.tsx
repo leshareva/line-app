@@ -29,7 +29,7 @@ class Airtable extends air {
 
         return new Promise<Array<any>>((resolve, reject) => {
             let cells = []
-        
+
             this.base(listName).select(options ? options : {})
                 .eachPage(function page(records, fetchNextPage) {
                     records
@@ -61,14 +61,15 @@ class Airtable extends air {
             })
         });
 
-    create = async (fields: any, listName: string) =>
+    create = async (fields: any, listName: string, params?: { typecast: boolean }) =>
         new Promise<any>((resolve, reject) => {
-            this.base(listName).create(fields, function (err, record) {
+            this.base(listName).create(fields, params, function (err, record) {
                 if (err) { console.error(err); return; }
                 record.fields.recID = record.id
                 resolve(record.fields)
             })
         })
+
 
     replace = (recID: string, field: any, listName: string) =>
         new Promise(resolve => {

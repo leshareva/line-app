@@ -16,6 +16,12 @@
   --small-font-size: 14px;
   --small-font-line-height: calc(var(--wrapper-padding) * 2);
   --link_alternate: #e03800;
+  --color-red: #e03800;
+  --color-gray: #F2F2F2;
+  --color-yellow: #FFEE35;
+  --color-blue: #015EFF;
+  --color-purple: #7300AD;
+  --color-pink: #FFCFE1;
 }
 
 .header {
@@ -155,4 +161,8 @@ a:-webkit-any-link {
 
 .PanelHeader-left-in {
   color: white;
+}
+
+.HorizontalScroll .TabsItem {
+  min-width: auto;
 }

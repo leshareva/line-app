@@ -41,9 +41,9 @@ export default class HistoryList extends React.Component<iHistoryList, any>{
                     if (!el['Баллы']) el['Баллы'] = 0;
 
                     if (el['Баллы'] > 0 && el['Опыт']) {
-                        return <span><span>{el['Баллы']}</span><span className="star">{star('#000000')}</span><span>,&nbsp;{el['Опыт'][0]}&nbsp;опыта {(() => el['Комментарий'] ? "• " + el['Комментарий'] : "")()}</span></span>
+                        return <span><span>{el['Баллы']}</span><span className="star">{star('#000000')}</span><span>,&nbsp;{el['Опыт']}&nbsp;опыта {(() => el['Комментарий'] ? "• " + el['Комментарий'] : "")()}</span></span>
                     } else if (el['Баллы'] === 0 && el['Опыт']) {
-                        return <span>{el['Опыт'][0]}&nbsp;опыта {(() => el['Комментарий'] ? "• " + el['Комментарий'] : "")()}</span>
+                        return <span>{el['Опыт']}&nbsp;опыта {(() => el['Комментарий'] ? "• " + el['Комментарий'] : "")()}</span>
 
                     } else if (!el['Опыт']) {
                         return <span><span>{el['Баллы']}</span><span className="star">{star('#000000')}</span>{(() => el['Комментарий'] ? "• " + el['Комментарий'] : "")()}</span>

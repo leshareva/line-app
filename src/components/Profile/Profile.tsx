@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Panel, Cell, List, PanelHeader, Group, Avatar, platform, ANDROID } from '@vkontakte/vkui'
+import { Panel, Cell, List, PanelHeader, Group, Avatar, platform, ANDROID, Progress } from '@vkontakte/vkui'
 import Icon24BrowserForward from '@vkontakte/icons/dist/24/browser_forward'
 import "./Profile.css"
 import Cover from '../Cover/Cover'
@@ -32,8 +32,18 @@ class Profile extends React.Component<iProfilePage, any> {
     constructor(props) {
         super(props)
         this.state = {
-            selectedTab: 'tasks'
+            tabs: ['rubrics', 'history'],
+            selectedTab: 'rubrics'
         }
+    }
+
+    componentDidMount() {
+        // if (this.props.achieves && this.props.achieves.length !== 0) {
+        //     this.setState({ selectedTab: 'tasks' })
+        //     let tabs = this.state.tabs
+        //     tabs.push('tasks')
+        //     this.setState({ tabs: tabs })
+        // }
     }
 
 
@@ -61,14 +71,16 @@ class Profile extends React.Component<iProfilePage, any> {
                             <span className="amount">{user['Баланс']}</span>
                             <span className="star">{star('#ffffff')}</span>
                             <br />
-                            <a href="https://vk.com/@lean.school-kak-zarabotat-v-line-bally-i-zachem" target="_blank" rel="noopener noreferrer">Зачем баллы?</a>
+                            {`${1000 - user.levelExperience} опыта до ${Math.round(user['Уровень']) + 1} уровня `}
+                            <Progress value={user.levelExperience * 0.1} style={{ width: '100%' }} />
+                            {/* <a href="https://vk.com/@lean.school-kak-zarabotat-v-line-bally-i-zachem" target="_blank" rel="noopener noreferrer">Зачем баллы?</a> */}
                             <LevelBubble className="levelBubble" action={openSnackbar}>{Math.round(user['Уровень'])}</LevelBubble>
                         </div>
 
                     </div>
                 </Cover>
 
-                <ProfileTabs history={this.props.history} selectedTab={this.state.selectedTab} onClickHandler={(tabName) => this.setState({ selectedTab: tabName })} />
+                <ProfileTabs tabs={this.state.tabs} history={this.props.history} selectedTab={this.state.selectedTab} onClickHandler={(tabName) => this.setState({ selectedTab: tabName })} />
 
                 {(this.state.selectedTab === 'tasks') ? <TodoCardsList achieves={achieves} openModal={openModal} user={user} /> : ''}
 

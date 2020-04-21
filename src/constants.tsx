@@ -6,5 +6,4 @@ export const VK_ADMIN_ACCESS_TOKEN = '25bec7da203afb629e05ec40bb284d3f196a85c0a0
 export const VK_SERVISE_KEY = 'f60c2422f60c2422f60c242263f6623d78ff60cf60c2422abd8f8acb1ae9af95c999324'//prod
 
 
-
 export const AMOUNT_TO_NEW_USER = 25;

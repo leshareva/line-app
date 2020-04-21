@@ -44,3 +44,13 @@
 .coverContainer {
   padding: 0;
 }
+
+
+
+.cover .Progress {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.cover .Progress .Progress__in {
+  background-color: white;
+}
