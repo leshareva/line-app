@@ -80,7 +80,7 @@ class LessonCard extends React.Component<any, any> {
 					<Div style={{ maxWidth: '62vw', color: 'black' }}>
 						<h1>{meta['Name']}</h1>
 						<div className="lead">{`${meta['Дата']}, ${meta['День недели']}`} <br />
-							{meta['Время']}–{meta['Окончание']} МСК</div>
+							{meta['Время']} МСК</div>
 					</Div>
 				</Cover>
 				<Separator />
