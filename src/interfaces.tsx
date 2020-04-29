@@ -34,7 +34,7 @@ export class iAchieve {
 	'Короткое описание': string = null
 	'Опубликовано': boolean = null
 	achievedItems?: any[]
-	done?: boolean
+	acivedItem?: any
 }
 
 export class iRubric {

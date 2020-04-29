@@ -53,7 +53,7 @@ class App extends React.Component<any, iAppState> {
 
 		this.state = {
 			user: null,
-			activeView: 'profile',
+			activeView: null,
 			activeModal: null,
 			modalData: null,
 			authToken: null,
@@ -92,6 +92,7 @@ class App extends React.Component<any, iAppState> {
 		connect.subscribe(async (e: any) => {
 			switch (e.detail.type) {
 				case 'VKWebAppGetUserInfoResult':
+					this.setState({ activeView: 'profile' })
 					this.setState({ rubrics: await this.fetchRubricsData() })
 					this.setState({ history: await this.fetchHistoryData(this.state.rubrics, e.detail.data) })
 					let userData = await this.fetchUserData(e.detail.data);

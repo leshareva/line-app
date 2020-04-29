@@ -22,10 +22,10 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
     }
     async componentDidMount() {
         let proms = this.props.achieves.map(achieve => this.fetchRubricHistory(achieve).then((userHistory: any[]) => {
-
+            
             achieve.achievedItems = userHistory || []
             let acivedItem = userHistory.filter(el => el['Ачивка']).find(el => el['Ачивка'][0] === achieve.recID)
-            achieve.done = acivedItem ? true : false
+            achieve.acivedItem = acivedItem 
             return achieve
         }))
 
@@ -50,11 +50,6 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
             })
     }
 
-    isDone() {
-        // console.log(this.props.user)
-        // console.log(this.state.achieves)
-        return false
-    }
 
     
 
@@ -88,13 +83,13 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
 
                     before={<div className="roundContainer">
                         <div className="round">
-                            <label className="roundCircle" style={el.done ? { backgroundColor: 'var(--color-spacegray)' } : { backgroundColor: '#fff' }}></label>
+                            <label className="roundCircle" style={el.acivedItem ? { backgroundColor: 'var(--color-spacegray)' } : { backgroundColor: '#fff' }}></label>
                         </div>
                     </div>}
 
-                    description={!el.done ? `Выполнено ${el.achievedItems ? el.achievedItems.length : 0} из ${el["Кол-во работ"]}` : null}
+                    description={!el.acivedItem ? `Выполнено ${el.achievedItems ? el.achievedItems.length : 0} из ${el["Кол-во работ"]}` : `+ ${el.acivedItem['Опыт']} опыта`}
                 >
-                    <div style={el.done ? { textDecoration: 'line-through', color: 'var(--color-spacegray)' } : {}}>{`${el['Name']}`}</div>
+                    <div style={el.acivedItem ? { textDecoration: 'line-through', color: 'var(--color-spacegray)' } : {}}>{`${el['Name']}`}</div>
                 </Cell>
             })
         }
@@ -102,8 +97,8 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
         return <Group header={<Header mode="secondary">Достижения</Header>} separator="hide">
 
             <List >
-                {cells(achieves.filter(el=>!el.done).slice(0, 4))}
-                {cells(achieves.filter(el=>el.done))}
+                {cells(achieves.filter(el=>!el.acivedItem).slice(0, 4))}
+                {cells(achieves.filter(el=>el.acivedItem))}
             </List>
         </Group>
     }

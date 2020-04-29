@@ -31,6 +31,7 @@ class Profile extends React.Component<iProfilePage, any> {
 
     constructor(props) {
         super(props)
+
         this.state = {
             tabs: ['rubrics', 'history'],
             selectedTab: 'rubrics'
@@ -38,8 +39,9 @@ class Profile extends React.Component<iProfilePage, any> {
     }
 
     componentDidMount() {
+
         if (this.props.achieves && this.props.achieves.length !== 0) {
-            this.setState({ selectedTab: 'tasks' })
+            if (!this.state.selectedTab) this.setState({ selectedTab: 'tasks' })
             let tabs = this.state.tabs
             tabs.push('tasks')
             this.setState({ tabs: tabs })
@@ -58,6 +60,8 @@ class Profile extends React.Component<iProfilePage, any> {
             achieves,
             openModal
         } = this.props
+
+
 
         return (
 
