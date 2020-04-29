@@ -38,12 +38,12 @@ class Profile extends React.Component<iProfilePage, any> {
     }
 
     componentDidMount() {
-        // if (this.props.achieves && this.props.achieves.length !== 0) {
-        //     this.setState({ selectedTab: 'tasks' })
-        //     let tabs = this.state.tabs
-        //     tabs.push('tasks')
-        //     this.setState({ tabs: tabs })
-        // }
+        if (this.props.achieves && this.props.achieves.length !== 0) {
+            this.setState({ selectedTab: 'tasks' })
+            let tabs = this.state.tabs
+            tabs.push('tasks')
+            this.setState({ tabs: tabs })
+        }
     }
 
 

@@ -102,6 +102,7 @@ class App extends React.Component<any, iAppState> {
 
 					this.setState({ user: Object.assign(e.detail.data, userData) })
 					this.setState({ achieves: await this.fetchAchieves() as any[] })
+					
 					this.setState({ isLoading: false })
 					break;
 				case 'VKWebAppAccessTokenReceived':
@@ -173,7 +174,8 @@ class App extends React.Component<any, iAppState> {
 	fetchAchieves() {
 		let fields = new iAchieve();
 		return base.list('Ачивки', { 
-			filterByFormula: '{Опубликовано} = TRUE()', 
+			sort: [{ field: 'Кол-во работ', direction: 'asc' }, { field: 'Сложность', direction: 'asc' }],
+			filterByFormula: 'NOT({Опубликовано}=BLANK())', 
 			fields: Object.keys(fields).filter(key=>fields[key]!==undefined)
 		}).catch(e => [])
 	}

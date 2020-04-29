@@ -17,8 +17,8 @@ export class iUser {
 export interface iModalData {
 	title: string
 	desc: string
-	onButtonClickHandler: () => void
-	buttonLabel: string
+	onButtonClickHandler?: () => void
+	buttonLabel?: string
 	body?: any
 }
 
@@ -26,12 +26,13 @@ export interface iModalData {
 export class iAchieve {
 	recID: string
 	'Кол-во работ': number = null
-	'RubricID': string[] = null
+	'RubricID': string = null
 	'Name': string  = null
 	'Описание': string = null
 	'Оценка': number = null
 	'Таблица': string = null
 	'Короткое описание': string = null
+	'Опубликовано': boolean = null
 	achievedItems?: any[]
 	done?: boolean
 }

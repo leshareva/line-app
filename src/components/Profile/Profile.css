@@ -89,4 +89,35 @@
   align-items: flex-start;
 }
 
+.roundContainer {
+  position: relative;
+  width: calc(var(--wrapper-padding) * 5);
+}
+.round {
+  position: relative;
+}
+
+.round .roundCircle {
+  border: 1px solid var(--color-spacegray);
+  border-radius: 50%;
+  cursor: pointer;
+  height: calc(var(--wrapper-padding) * 3);
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: calc(var(--wrapper-padding) * 3);
+}
+
+.round .roundCircle:after {
+  border: 2px solid #fff;
+  border-top: none;
+  border-right: none;
+  content: "";
+  height: 6px;
+  left: 5px;
+  position: absolute;
+  top: 7px;
+  transform: rotate(-45deg);
+  width: 12px;
+}
 

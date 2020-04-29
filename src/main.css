@@ -5,6 +5,7 @@
   --header_background: none !important;
   --icon_secondary: #d5dce7;
   --button_primary_background: #e03800;
+  
   /* --font-header: "Montserrat", sans-serif; */
   --font-ios: "Montserrat", sans-serif;
   --big-font-size: 40px;
@@ -15,6 +16,7 @@
   --body-font-line-height: calc(var(--wrapper-padding) * 3);
   --small-font-size: 14px;
   --small-font-line-height: calc(var(--wrapper-padding) * 2);
+  --color-spacegray: #96a4bd;
   --link_alternate: #e03800;
   --color-red: #e03800;
   --color-gray: #F2F2F2;

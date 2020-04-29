@@ -222,7 +222,7 @@ class Rubric extends React.Component<iRubricPage, any> {
 				{(() => {
 					if (!rubric['Итог опыт'] || !this.state.history) return
 
-					let exp = this.state.history.filter(el => el['Опыт']).map(el => el['Опыт'][0]).reduce((current, next) => current + next, 0);
+					let exp = this.state.history.filter(el => el['Опыт']).map(el => el['Опыт']).reduce((current, next) => current + next, 0);
 					return <Group title="Прогресс" className="progressBarContainer">
 						<InfoRow header={`${Math.round((exp * 100) / rubric['Итог опыт'])}%`} className="progressBar">
 							<Progress value={(exp * 100) / rubric['Итог опыт']} style={{ width: '100%' }} />
@@ -237,7 +237,7 @@ class Rubric extends React.Component<iRubricPage, any> {
 
 
 
-				{(this.state.activeTab === 'history') ? <HistoryList history={this.state.history} rubric={rubric} /> : ''}
+				{(this.state.activeTab === 'history') ? <HistoryList history={this.state.history}  /> : ''}
 
 
 				{(() => {

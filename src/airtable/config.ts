@@ -10,6 +10,7 @@
 export const AIR_CONFIG = {
     apikey: 'keyCjoy0c7MaRyisi',
     base: 'appEXq7BJ3ceoFRtr',
+    // base: 'apprhfMNTLVTiJC5A', //DEV
     tLOGS: 'Начисления и списания',
     tUSERS: 'Участники'
 }

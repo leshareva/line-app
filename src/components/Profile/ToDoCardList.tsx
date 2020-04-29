@@ -1,5 +1,5 @@
 import React from 'react'
-import { Group, CardGrid, Card, Div } from '@vkontakte/vkui';
+import { Group, Header, List, Cell, } from '@vkontakte/vkui';
 import { iModalData, iUser, iAchieve } from '../../interfaces';
 import { base } from '../../airtable/airtable';
 
@@ -21,10 +21,12 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
         }
     }
     async componentDidMount() {
-        let proms = this.props.achieves.map(el => this.fetchRubricHistory(el).then(res => {
-            el.achievedItems = res
-            el.done = el.achievedItems.length === el['Кол-во работ'] || el.achievedItems.length > el['Кол-во работ']
-            return el
+        let proms = this.props.achieves.map(achieve => this.fetchRubricHistory(achieve).then((userHistory: any[]) => {
+
+            achieve.achievedItems = userHistory || []
+            let acivedItem = userHistory.filter(el => el['Ачивка']).find(el => el['Ачивка'][0] === achieve.recID)
+            achieve.done = acivedItem ? true : false
+            return achieve
         }))
 
         this.setState({
@@ -33,13 +35,28 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
     }
 
     async fetchRubricHistory(record: iAchieve) {
-        return base.list(record['Таблица'], { filterByFormula: `AND({VK-ID}=${this.props.user.id}, {Средняя} >= ${record['Оценка']}, NOT({Рубрика}=BLANK()))` })
-            .then((res: any[]) => res.filter(el => el['Рубрика'] && el['Рубрика'][0] === record.RubricID[0]))
+
+        return base.list(record['Таблица'], {
+            filterByFormula: `AND(
+                {VK-ID}=${this.props.user.id}, 
+                {Средняя} >= ${record['Оценка']}, 
+                {RubricID}='${record.RubricID}',
+                NOT({Ачивка}=BLANK())
+                )`
+        })
             .catch(e => {
                 console.error(e)
                 return []
             })
     }
+
+    isDone() {
+        // console.log(this.props.user)
+        // console.log(this.state.achieves)
+        return false
+    }
+
+    
 
     render() {
 
@@ -52,40 +69,42 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
         //     return false
         // }
 
-        return <Group title="Задания" separator="hide">
-            <CardGrid >
-                {
-                    achieves.map((el, i) => {
-                        let size: "s" | "m" | "l" = "m";
-                        if (i === 0 || i === 3) size = 'l'
-                        // if (i === 1 || i === 2) size = 'm'
-                        let style = {
-                            padding: 'var(--wrapper-padding-2x)',
-                            height: size === 'l' ? '120px' : '180px',
-                            fontSize: 'var(--small-font-size)'
-                        }
+        const cells = (arr: iAchieve[]) => {
+            return arr.map((el, i) => {
 
-                        return <Card size={size} key={el.recID} onClick={() => openModal({
-                            type: 'modal',
-                            data: {
-                                title: el['Name'],
-                                desc: el['Описание'],
-                                onButtonClickHandler: () => { console.log('Привет, мир!') },
-                                buttonLabel: 'Перейти в рубрику',
-                                body: (<Div>Вот мой прогресс</Div>)
-                            }
-                        })}>
-                            <div style={style}>
-                                <div className="Cell__children">{el['Name']}</div>
-                                {el['Короткое описание']}
-                                <br />
-                                <br />
-                                ✓ {el.achievedItems ? el.achievedItems.length : 0} из {el["Кол-во работ"]}
-                            </div>
-                        </Card>
-                    })
-                }
-            </CardGrid>
+                return <Cell
+                    key={i}
+                    multiline
+                    onClick={() => openModal({
+                        type: 'modal',
+                        data: {
+                            title: el['Name'],
+                            desc: el['Описание'],
+                            // onButtonClickHandler: () => { console.log('Привет, мир!') },
+                            // body: (<Div>Вот мой прогресс</Div>)
+                        }
+                    })}
+                    data-to='lesson'
+
+                    before={<div className="roundContainer">
+                        <div className="round">
+                            <label className="roundCircle" style={el.done ? { backgroundColor: 'var(--color-spacegray)' } : { backgroundColor: '#fff' }}></label>
+                        </div>
+                    </div>}
+
+                    description={!el.done ? `Выполнено ${el.achievedItems ? el.achievedItems.length : 0} из ${el["Кол-во работ"]}` : null}
+                >
+                    <div style={el.done ? { textDecoration: 'line-through', color: 'var(--color-spacegray)' } : {}}>{`${el['Name']}`}</div>
+                </Cell>
+            })
+        }
+
+        return <Group header={<Header mode="secondary">Достижения</Header>} separator="hide">
+
+            <List >
+                {cells(achieves.filter(el=>!el.done).slice(0, 4))}
+                {cells(achieves.filter(el=>el.done))}
+            </List>
         </Group>
     }
 }
