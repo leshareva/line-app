@@ -9,19 +9,21 @@ import Navbar from '../Navbar/Navbar';
 import RubricTabs from './RubricTabs';
 import ScheduleList from './ScheduleList';
 import HistoryList from '../HistoryList';
+import { parseDate, Time } from '../Helpers';
 
 
 interface iRubricPage {
 	id: string
 	user: any
 	rubric: any
-	go: (e: React.MouseEvent<HTMLElement>) => void
+	go: (route: string, meta?: any) => void
 	rubricCellClickHandler: (dataTo: string, metaData: any) => void
 }
 
 
 class Rubric extends React.Component<iRubricPage, any> {
 
+	_isMounted: boolean = false
 
 	state = {
 		purchases: null,
@@ -34,23 +36,27 @@ class Rubric extends React.Component<iRubricPage, any> {
 
 
 	async componentDidMount() {
+		this._isMounted = true
 		let { rubric } = this.props
 		const lessons = await this.getLessons()
 
 		this.setState({ lessons: lessons });
 
 		let history = await this.fetchHistoryData(this.props.user.id, rubric['recID'], rubric['Таблица'])
-		this.setState({ history: history })
+		let purchases = await this.getPurchases()
+		if(this._isMounted) {
+			this.setState({ history: history })
+			if (lessons && Object.keys(lessons).length !== 0) {
+				this.setState({ activeTab: 'schedule' })
+			} else if (history.length !== 0) {
+				this.setState({ activeTab: 'history' })
+			} else {
+				this.setState({ activeTab: 'desc' })
+			}
 
-		if (Object.keys(lessons).length !== 0) {
-			this.setState({ activeTab: 'schedule' })
-		} else if (history.length !== 0) {
-			this.setState({ activeTab: 'history' })
-		} else {
-			this.setState({ activeTab: 'desc' })
+			this.setState({ purchases:  purchases });
 		}
-
-		this.setState({ purchases: await this.getPurchases() });
+		
 	}
 
 
@@ -58,30 +64,11 @@ class Rubric extends React.Component<iRubricPage, any> {
 
 
 	componentWillUnmount() {
-		this.setState({ purchases: null, lessons: null })
+		this._isMounted = false;
 	}
 
 
-	parseDate = (iso: string) => {
-		var arr = [
-			'января',
-			'февраля',
-			'марта',
-			'апреля',
-			'мая',
-			'июня',
-			'июля',
-			'августа',
-			'сентября',
-			'октября',
-			'ноября',
-			'декабря',
-		];
-		let date = new Date(iso)
-		let month = arr[+date.getMonth()];
-		const result = `${date.getDate()} ${month} ${date.getFullYear()}, ${date.toLocaleTimeString().replace(/(.*:.*?):\d+/gs, '$1')}`
-		return result
-	}
+
 
 
 	async fetchHistoryData(userID: number, rubricID: string, rubricTable: string) {
@@ -95,6 +82,8 @@ class Rubric extends React.Component<iRubricPage, any> {
 
 		return base.list('Тренировки', { view: 'Ближайшие', filterByFormula: `AND(NOT({Дата}=BLANK()), {RubricID}='${this.props.rubric.recID}')` })
 			.then((res: any[]) => {
+
+				if (res.length === 0) return
 				let obj = {}
 
 
@@ -109,7 +98,7 @@ class Rubric extends React.Component<iRubricPage, any> {
 				}
 
 				res.forEach(el => {
-					let key = this.parseDate(el['Дата']).replace(/^(\d+\s.+?)\s.+/gs, '$1');
+					let key = parseDate(el['Дата']).replace(/^(\d+\s.+?)\s.+/gs, '$1');
 					let date = new Date(el['Дата']);
 
 					obj[key] = {
@@ -121,20 +110,14 @@ class Rubric extends React.Component<iRubricPage, any> {
 
 				})
 
-				function Time(date) {
-					var d = new Date(date);
-					d.setHours(d.getHours());
-					let res = d.toTimeString().substring(0, 5);
-					return res;
 
-				}
 
 
 				res.forEach(el => {
-					let key = this.parseDate(el['Дата']).replace(/^(\d+\s.+?)\s.+/gs, '$1');
+					let key = parseDate(el['Дата']).replace(/^(\d+\s.+?)\s.+/gs, '$1');
 					el['День недели'] = days[new Date(el['Дата']).getDay()]
 					el['Время'] = Time(el['Дата'])
-					el['Окончание'] = Time(el['Время окончания'])
+					// el['Окончание'] = Time(el['Время окончания'])
 					el['Дата'] = key;
 					el['rubric'] = this.props.rubric;
 					obj[key]['items'].push(el)
@@ -182,12 +165,6 @@ class Rubric extends React.Component<iRubricPage, any> {
 		})
 	}
 
-	onCellClickHandler(el) {
-		el.user = this.props.user
-		el.purchases = this.state.purchases
-		return this.props.rubricCellClickHandler('lesson', el)
-	}
-
 
 
 	render() {
@@ -199,15 +176,16 @@ class Rubric extends React.Component<iRubricPage, any> {
 
 
 
-		const cover = () => rubric['Обложка'] ? `url(${rubric['Обложка'][0]['url']}) center/cover no-repeat` : '';
+		// const cover = () => rubric['Обложка'] ? `url(${rubric['Обложка'][0]['url']}) center/cover no-repeat` : '';
 
 		return (
 
 			<Panel id='rubric'>
 
-				<Navbar go={go} dataTo='profile'></Navbar>
+				<Navbar go={() => go('profile')} dataTo='profile'></Navbar>
 
-				<Cover background={cover()} height="fit-content">
+				<Cover height="fit-content">
+					{/* <Cover background={cover()} height="fit-content"> */}
 					<Div className="desc"><h1>{rubric['Название']}</h1></Div>
 				</Cover>
 
@@ -215,6 +193,7 @@ class Rubric extends React.Component<iRubricPage, any> {
 				<RubricTabs
 					rubric={rubric}
 					selectedTab={this.state.activeTab}
+					lessons={this.state.lessons}
 					history={this.state.history}
 					onClickHandler={(tabName) => this.setState({ activeTab: tabName })}
 				/>
@@ -237,14 +216,17 @@ class Rubric extends React.Component<iRubricPage, any> {
 
 
 
-				{(this.state.activeTab === 'history') ? <HistoryList history={this.state.history}  /> : ''}
+				{(this.state.activeTab === 'history') ? <HistoryList history={this.state.history} /> : ''}
 
 
 				{(() => {
 					if (this.state.activeTab !== 'schedule') return;
 					return <ScheduleList
 						lessons={this.state.lessons}
-						onCellClick={(e) => this.onCellClickHandler(e)}
+						onCellClick={(e) => {
+							console.log('event', e);
+							this.props.go('lesson', e) 
+						}}
 						rubric={rubric}
 					/>
 				})()}

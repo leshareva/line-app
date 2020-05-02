@@ -1,5 +1,5 @@
 import React from 'react';
-import connect from '@vkontakte/vk-connect';
+import bridge from '@vkontakte/vk-bridge';
 import { platform, ANDROID, View, ModalRoot } from '@vkontakte/vkui';
 import * as Typograf from 'typograf';
 
@@ -19,6 +19,7 @@ import LessonCard from './components/LessonCard/LessonCard';
 import { ProgressSnackBar } from './components/ProgressSnackbar/ProgressSnackBar';
 import { iModalData, iUser, iRubric, iAchieve, iHistoryItem } from './interfaces';
 import ModalCardComponent from './components/ModalCardComponent';
+import { parseQueryString } from './components/Helpers';
 
 
 const tp = new Typograf({ locale: ['ru', 'en-US'] });
@@ -31,7 +32,6 @@ const osname = platform();
 interface iAppState {
 	user: iUser
 	activeView: string
-	// activeStory: string
 	activeModal: string
 	modalData: iModalData
 	authToken: string
@@ -45,6 +45,8 @@ interface iAppState {
 }
 
 class App extends React.Component<any, iAppState> {
+
+	_isMounted: boolean
 
 	constructor(props) {
 		super(props);
@@ -67,9 +69,8 @@ class App extends React.Component<any, iAppState> {
 		};
 
 		this.openSnackbar = this.openSnackbar.bind(this);
-		// this.onStoryChange = this.onStoryChange.bind(this);
 		this.setActiveModal = this.setActiveModal.bind(this);
-
+		this._isMounted = false
 	}
 
 
@@ -87,45 +88,65 @@ class App extends React.Component<any, iAppState> {
 
 	async componentDidMount() {
 
+		this._isMounted = true;
+
 		this.setState({ isLoading: true })
 
-		connect.subscribe(async (e: any) => {
+		bridge.subscribe(async (e: any) => {
 			switch (e.detail.type) {
 				case 'VKWebAppGetUserInfoResult':
-					this.setState({ activeView: 'profile' })
-					this.setState({ rubrics: await this.fetchRubricsData() })
-					this.setState({ history: await this.fetchHistoryData(this.state.rubrics, e.detail.data) })
+					let rubrics = await this.fetchRubricsData()
+					let history = await this.fetchHistoryData(rubrics, e.detail.data)
 					let userData = await this.fetchUserData(e.detail.data);
-					
+					let purchases = await this.fetchUserPusrchases(userData["VK-ID"]);
 					let exp = Math.round(userData['Опыт'] ? userData['Опыт'] : 0);
+					let achieves = await this.fetchAchieves() as any[];
 					let sl = exp.toString()
 					userData.levelExperience = (sl.length > 3) ? +sl.slice(sl.length - 3) : +sl
 
-					this.setState({ user: Object.assign(e.detail.data, userData) })
-					this.setState({ achieves: await this.fetchAchieves() as any[] })
-					
-					this.setState({ isLoading: false })
+
+
+					this.setState({
+						rubrics: rubrics,
+						history: history,
+						purchases: purchases,
+						user: Object.assign(e.detail.data, userData),
+						achieves: achieves
+					})
+
+					const hashParams = parseQueryString(window.location.hash);
+
+					if (hashParams.r === 'lesson' && hashParams.id) {
+						this.setState({ activeView: 'lesson', meta: { lessonID: hashParams.id }, isLoading: false })
+					} else {
+						this.setState({ activeView: 'profile', isLoading: false })
+					}
+
+
+
 					break;
 				case 'VKWebAppAccessTokenReceived':
 					this.setState({ authToken: e.detail.data.access_token });
 					break;
 				case 'VKWebAppViewRestore':
 					break;
+				case 'VKWebAppAllowNotificationsResult':
+					break;
 				default:
 
 			}
 		});
 
-		(osname === ANDROID) ? connect.send("VKWebAppSetViewSettings", { "status_bar_style": "light", "action_bar_color": "#000000" }) : connect.send("VKWebAppSetViewSettings", { "status_bar_style": "light", });
-		connect.send('VKWebAppGetUserInfo', {});
+		(osname === ANDROID) ? bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "light", "action_bar_color": "#000000" }) : bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "light", });
+		bridge.send('VKWebAppGetUserInfo', {});
+
+
 
 	}
 
 
 	componentWillUnmount() {
-		connect.unsubscribe((data) => {
-			console.log(data)
-		});
+		this._isMounted = false;
 	}
 
 
@@ -136,7 +157,7 @@ class App extends React.Component<any, iAppState> {
 		let fields = new iUser()
 		let data: iUser
 		data = await base.list('Участники', {
-			filterByFormula: `{${R_VK_ID}} = ${user.id}`, fields: Object.keys(fields).filter(key=>fields[key]!==undefined)
+			filterByFormula: `{${R_VK_ID}} = ${user.id}`, fields: Object.keys(fields).filter(key => fields[key] !== undefined)
 		}).then(res => res[0]);
 
 		return data ? data : base.create({ 'Имя': `${user.first_name} ${user.last_name}`, [R_VK_ID]: user.id }, 'Участники')
@@ -148,15 +169,19 @@ class App extends React.Component<any, iAppState> {
 
 	}
 
+	async fetchUserPusrchases(userID: number): Promise<any> {
+		return base.list('Покупки', { filterByFormula: `AND({VK-ID}=${userID}, NOT({Статус}="Архив"))` })
+	}
+
 
 
 	async fetchRubricsData(): Promise<iRubric[]> {
 		let fields = new iRubric();
-		
+
 		let rubrics = await base.list('Рубрики', {
-			filterByFormula: '{Опубликовано} = TRUE()', 
-			fields: Object.keys(fields).filter(key=>fields[key]!==undefined)
-			
+			filterByFormula: '{Опубликовано} = TRUE()',
+			fields: Object.keys(fields).filter(key => fields[key] !== undefined)
+
 		}).catch(e => []) as iRubric[]
 
 		return rubrics.map((obj: iRubric) => {
@@ -174,10 +199,10 @@ class App extends React.Component<any, iAppState> {
 
 	fetchAchieves() {
 		let fields = new iAchieve();
-		return base.list('Ачивки', { 
+		return base.list('Ачивки', {
 			sort: [{ field: 'Кол-во работ', direction: 'asc' }, { field: 'Сложность', direction: 'asc' }],
-			filterByFormula: 'NOT({Опубликовано}=BLANK())', 
-			fields: Object.keys(fields).filter(key=>fields[key]!==undefined)
+			filterByFormula: 'NOT({Опубликовано}=BLANK())',
+			fields: Object.keys(fields).filter(key => fields[key] !== undefined)
 		}).catch(e => [])
 	}
 
@@ -191,7 +216,7 @@ class App extends React.Component<any, iAppState> {
 					sort: [{ field: 'Датавремя', direction: 'desc' }],
 					maxRecords: 10,
 					filterByFormula: `{VK-ID} = ${user.id}`,
-					fields: Object.keys(fields).filter(key=>fields[key]!==undefined)
+					fields: Object.keys(fields).filter(key => fields[key] !== undefined)
 				})
 		)
 
@@ -203,9 +228,9 @@ class App extends React.Component<any, iAppState> {
 
 	setLocation = (route: string) => {
 		if (route !== 'profile') {
-			connect.send('VKWebAppSetLocation', { location: route });
+			bridge.send('VKWebAppSetLocation', { location: route });
 		} else {
-			connect.send('VKWebAppSetLocation', { location: '' });
+			bridge.send('VKWebAppSetLocation', { location: '' });
 		}
 	}
 
@@ -217,16 +242,21 @@ class App extends React.Component<any, iAppState> {
 		});
 	}
 
-	go = async (e: React.MouseEvent<HTMLElement>) => {
-		const route = e.currentTarget.dataset.to;
-		const meta = e.currentTarget.dataset.meta;
-		const parseMeta = meta ? JSON.parse(meta) : null
-		if (parseMeta) this.setState({ meta: parseMeta })
-
+	go = (route: string, meta?: any) => {
+		if (meta) this.setState({ meta: meta })
 		this.setState({ activeView: route })
 		return
 	};
 
+	// go = async (route: string, meta: any) => {
+	// 	const route = e.currentTarget.dataset.to;
+	// 	const meta = e.currentTarget.dataset.meta;
+	// 	const parseMeta = meta ? JSON.parse(meta) : null
+	// 	if (parseMeta) this.setState({ meta: parseMeta })
+
+	// 	this.setState({ activeView: route })
+	// 	return
+	// };
 
 	onRubricCellClickHandler = (route: string, meta: any) => {
 		this.setState({ activeView: route })
@@ -235,8 +265,20 @@ class App extends React.Component<any, iAppState> {
 
 
 	render() {
-		const { user, isLoading, history, rubrics, achieves } = this.state;
+
+		const {
+			user,
+			isLoading,
+			history,
+			rubrics,
+			achieves,
+			purchases,
+			meta
+		} = this.state;
+
 		if (!user || isLoading) return splashLoader;
+
+
 
 		const modal =
 			(<ModalRoot
@@ -267,15 +309,16 @@ class App extends React.Component<any, iAppState> {
 				<Rubric
 					id='rubric'
 					user={user}
-					rubric={this.state.meta}
+					rubric={meta}
 					go={this.go}
-					rubricCellClickHandler={this.onRubricCellClickHandler}
+					rubricCellClickHandler={this.go}
 				/>
 				<LessonCard
 					id="lesson"
 					onBackClick={this.go}
-					meta={this.state.meta}
+					lessonID={meta.lessonID}
 					user={user}
+					purchases={purchases}
 				/>
 			</View >
 		)

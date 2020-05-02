@@ -16,7 +16,7 @@ import { iModalData } from '../../interfaces'
 interface iProfilePage {
     id: string,
     rubrics: any[]
-    go: (e: React.MouseEvent<HTMLElement>) => void
+    go: (route: string, meta?: any) => void
     user: any
     snackbar: any
     openSnackbar: () => void
@@ -101,9 +101,8 @@ class Profile extends React.Component<iProfilePage, any> {
                                         multiline
                                         description={rubric['desc']}
                                         asideContent={<Icon24BrowserForward fill="var(--icon_secondary)" />}
-                                        onClick={go}
-                                        data-to='rubric'
-                                        data-meta={JSON.stringify(rubric)}>{rubric['Название']}</Cell>)
+                                        onClick={(e)=>go('rubric', rubric)}
+                                        >{rubric['Название']}</Cell>)
                                 })}
                             </List>
                         </Group>

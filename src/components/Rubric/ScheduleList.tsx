@@ -23,9 +23,6 @@ export default class ScheduleList extends React.Component<iScheduleList, any>{
 
     render() {
         let { lessons, onCellClick } = this.props
-
-
-
         let days = Object.keys(lessons);
         return days.map((key, i) => {
             let les = lessons[key];
@@ -34,7 +31,7 @@ export default class ScheduleList extends React.Component<iScheduleList, any>{
                     {(() => {
                         let less = lessons[key]['items']
                         return less.map((lesson, index) => {
-                            return (<ScheduleListItem key={index} lesson={lesson} onCellClick={(data) => onCellClick(data)} />)
+                            return (<ScheduleListItem key={index} lesson={lesson} onCellClick={onCellClick} />)
                         })
                     })()}
                 </Group>

@@ -4,6 +4,7 @@ import { Tabs, TabsItem, HorizontalScroll } from '@vkontakte/vkui'
 interface iRubricTabs {
     rubric: any
     history: any[]
+    lessons: any[]
     onClickHandler: (tabName: string) => void
     selectedTab: string
 }
@@ -11,11 +12,11 @@ interface iRubricTabs {
 export default class RubricTabs extends React.Component<iRubricTabs, any> {
 
     render() {
-        let { rubric, history, onClickHandler, selectedTab } = this.props
-
+        let { rubric, history, onClickHandler, selectedTab, lessons } = this.props
+        
         return <Tabs>
             <HorizontalScroll>
-            {(rubric['Тренировки'])
+            {(lessons)
                 ?
                 <TabsItem
                     onClick={() => onClickHandler('schedule')}
