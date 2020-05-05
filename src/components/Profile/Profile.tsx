@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Panel, Cell, List, PanelHeader, Group, Avatar, platform, ANDROID, Progress } from '@vkontakte/vkui'
+import { Panel, Cell, List, PanelHeader, Group, Avatar, platform, ANDROID, Progress, Button } from '@vkontakte/vkui'
 import Icon24BrowserForward from '@vkontakte/icons/dist/24/browser_forward'
 import "./Profile.css"
 import Cover from '../Cover/Cover'
@@ -9,7 +9,7 @@ import LevelBubble from './LevelBubble/LevelBubble'
 import ProfileTabs from './ProfileTabs'
 import HistoryList from '../HistoryList'
 import TodoCardsList from './ToDoCardList'
-import { iModalData } from '../../interfaces'
+import { iModalData, iUser } from '../../interfaces'
 
 
 
@@ -17,7 +17,7 @@ interface iProfilePage {
     id: string,
     rubrics: any[]
     go: (route: string, meta?: any) => void
-    user: any
+    user: iUser
     snackbar: any
     openSnackbar: () => void
     history: any[]
@@ -112,6 +112,7 @@ class Profile extends React.Component<iProfilePage, any> {
 
                 {(this.props.history.length !== 0 && this.state.selectedTab === 'history') ? <HistoryList history={this.props.history} /> : ''}
                 {snackbar}
+                <Button href={`https://9cd69441.ngrok.io/pay?user_id=${user.recID}&prod_id=reckCZAd2mnL7NWK8`} target="_blank">Оплатить</Button>
             </Panel>
 
         )

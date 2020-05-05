@@ -16,7 +16,7 @@ export default class ScheduleListItem extends React.Component<iScheduleListItem,
             multiline
             onClick={()=>onCellClick({ lessonID: lesson.recID })}
             before={<div className="time"></div>}
-            description={`${lesson['Время']} МСК ${lesson['Описание'] ? lesson['Описание'].substring(0, 70) : ''}`}
+            description={`${lesson['Время']} ${lesson['Описание'] ? ',' + lesson['Описание'].substring(0, 70) : ''}`}
         >
             {`${lesson['Name']}`}
         </Cell>

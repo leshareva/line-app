@@ -126,7 +126,8 @@ class LessonCard extends React.Component<iLessonCard, any> {
 
 		if (lesson['Осталось'] === 0) return this.setState({ message: 'Не осталось мест на тренировке' })
 
-		if (this.props.user && lesson['Участники'].find(el => +el === this.props.user['VK-ID'])) return this.setState({ message: 'Ты в участниках' })
+		if (this.props.user && !lesson['Ссылка'] && lesson['Участники'].find(el => +el === this.props.user['VK-ID'])) return this.setState({ message: 'Ты в участниках' })
+		if (this.props.user && lesson['Ссылка'] && lesson['Участники'].find(el => +el === this.props.user['VK-ID'])) return this.setState({ message: 'Вы сдали работу' })
 
 	}
 
@@ -144,10 +145,10 @@ class LessonCard extends React.Component<iLessonCard, any> {
 		} = this.props
 
 		let { lesson, rubric } = this.state
-		
+
 
 		if (!lesson || !user) return <div id={id}>Грузим</div>
-
+		console.log(lesson)
 		return (
 
 			<Panel id={id}>
@@ -156,7 +157,7 @@ class LessonCard extends React.Component<iLessonCard, any> {
 					<Div style={{ maxWidth: '62vw', color: 'black' }}>
 						<h1>{lesson['Name']}</h1>
 						<div className="lead">{`${lesson['Дата']}, ${lesson['День недели']}`} <br />
-							{lesson['Время']} МСК</div>
+							{lesson['Время']}</div>
 					</Div>
 				</Cover>
 				<Separator />
@@ -167,8 +168,7 @@ class LessonCard extends React.Component<iLessonCard, any> {
 					{
 						(() => {
 							if (this.state.message) return <div>{this.state.message}</div>
-							return <Button size={'l'} stretched={true} onClick={() => this.sendData()}>Я буду</Button>
-
+							return lesson['Ссылка'] ? <Button size={'l'} href={lesson['Ссылка']} target="_blank" stretched={true}>Открыть</Button> : <Button size={'l'} stretched={true} onClick={() => this.sendData()}>Я буду</Button>
 						})()
 					}
 

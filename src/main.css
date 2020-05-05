@@ -72,15 +72,11 @@ body {
 }
 
 .bottomBar {
-  height: calc(var(--wrapper-padding) * 8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background-color: white;
   width: 100vw;
   text-align: center;
   font-size: var(--body-font-size);
-  padding: -var(--wrapper-padding) var(--wrapper-padding-2x);
+  padding: var(--wrapper-padding) var(--wrapper-padding-2x);
 }
 
 .bottomBar .Button {

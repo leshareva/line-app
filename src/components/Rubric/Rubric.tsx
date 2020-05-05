@@ -223,10 +223,7 @@ class Rubric extends React.Component<iRubricPage, any> {
 					if (this.state.activeTab !== 'schedule') return;
 					return <ScheduleList
 						lessons={this.state.lessons}
-						onCellClick={(e) => {
-							console.log('event', e);
-							this.props.go('lesson', e) 
-						}}
+						onCellClick={(e) => this.props.go('lesson', e)}
 						rubric={rubric}
 					/>
 				})()}
