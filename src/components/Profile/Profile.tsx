@@ -112,7 +112,7 @@ class Profile extends React.Component<iProfilePage, any> {
 
                 {(this.props.history.length !== 0 && this.state.selectedTab === 'history') ? <HistoryList history={this.props.history} /> : ''}
                 {snackbar}
-                <Button href={`https://9cd69441.ngrok.io/pay?user_id=${user.recID}&prod_id=reckCZAd2mnL7NWK8`} target="_blank">Оплатить</Button>
+               
             </Panel>
 
         )
