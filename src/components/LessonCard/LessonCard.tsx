@@ -1,13 +1,15 @@
 import React from 'react';
-import { Panel, Div, FixedLayout, Separator, Button, Link, ANDROID, platform } from '@vkontakte/vkui';
+
+import { Panel, Div, FixedLayout, Separator, Button, Link, ANDROID, platform, FormLayout, File, Avatar, PopoutWrapper } from '@vkontakte/vkui';
 import "./LessonCard.css";
 import Cover from '../Cover/Cover';
 import ReactMarkdown from 'react-markdown';
-import { base } from '../../airtable/airtable';
 import bridge from '@vkontakte/vk-bridge';
 import Navbar from '../Navbar/Navbar';
 import { parseQueryString, parseDate, Time } from '../Helpers';
 import { iUser } from '../../interfaces';
+import { base } from '../../Airtable';
+
 
 const osname = platform();
 
@@ -16,6 +18,7 @@ interface iLessonCard {
 	lessonID: string
 	user: iUser
 	onBackClick: (route: string, meta?: any) => void
+	backTo?: string
 	purchases: any[]
 }
 
@@ -23,7 +26,7 @@ interface iLessonCard {
 class LessonCard extends React.Component<iLessonCard, any> {
 
 	_isMounted: boolean
-	state = { message: null, lesson: null, rubric: null }
+	state = { message: null, lesson: null, rubric: null, selectedFile: null }
 
 	constructor(props) {
 		super(props)
@@ -32,6 +35,7 @@ class LessonCard extends React.Component<iLessonCard, any> {
 
 	async componentDidMount() {
 		this._isMounted = true;
+
 		await this.fetchLessonData();
 		if (this.state.lesson) this.checkPermissions();
 		(osname === ANDROID) ? bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#ffffff" }) : bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", });
@@ -126,8 +130,8 @@ class LessonCard extends React.Component<iLessonCard, any> {
 
 		if (lesson['Осталось'] === 0) return this.setState({ message: 'Не осталось мест на тренировке' })
 
-		if (this.props.user && !lesson['Ссылка'] && lesson['Участники'].find(el => +el === this.props.user['VK-ID'])) return this.setState({ message: 'Ты в участниках' })
-		if (this.props.user && lesson['Ссылка'] && lesson['Участники'].find(el => +el === this.props.user['VK-ID'])) return this.setState({ message: 'Вы сдали работу' })
+		if (this.props.user && !lesson['Ссылка'] && lesson['Участники'].find(el => +el === this.props.user['VK-ID'])) return this.setState({ message: '👍🏻 Ты в участниках' })
+		if (this.props.user && lesson['Ссылка'] && lesson['Участники'].find(el => +el === this.props.user['VK-ID'])) return this.setState({ message: '👍🏻 Работа сдана' })
 
 	}
 
@@ -141,18 +145,20 @@ class LessonCard extends React.Component<iLessonCard, any> {
 		let {
 			onBackClick,
 			id,
-			user
+			user,
+			backTo
 		} = this.props
 
 		let { lesson, rubric } = this.state
 
 
-		if (!lesson || !user) return <div id={id}>Грузим</div>
-		console.log(lesson)
+		if (!lesson || !user) return <div id={id}>…</div>
+		let getImage = () => lesson['Обложка'] ? <Avatar src={lesson['Обложка'][0]['url']} mode="image" size={80} /> : null
+		
 		return (
 
 			<Panel id={id}>
-				<Navbar go={() => onBackClick('rubric', rubric)} buttonColor="black"></Navbar>
+				<Navbar go={() => onBackClick(backTo ? backTo : 'rubric', rubric)} buttonColor="black"></Navbar>
 				<Cover background="#f2f2f2" height='fit-content'>
 					<Div style={{ maxWidth: '62vw', color: 'black' }}>
 						<h1>{lesson['Name']}</h1>
@@ -163,12 +169,13 @@ class LessonCard extends React.Component<iLessonCard, any> {
 				<Separator />
 				<Div className="desc">
 					<ReactMarkdown source={lesson['Описание']} />
+					{getImage()}
 				</Div>
-				<FixedLayout vertical="bottom" className="bottomBar">
+				<FixedLayout vertical="bottom" className="bottomBar" style={lesson['Участники'].find(el => +el === user['VK-ID']) ? { background: 'var(--color-spacegray)' } : {}}>
 					{
 						(() => {
 							if (this.state.message) return <div>{this.state.message}</div>
-							return lesson['Ссылка'] ? <Button size={'l'} href={lesson['Ссылка']} target="_blank" stretched={true}>Открыть</Button> : <Button size={'l'} stretched={true} onClick={() => this.sendData()}>Я буду</Button>
+							return lesson['Ссылка'] ? <Button size={'l'} href={lesson['Ссылка']} target="_blank" stretched={true}>Сдать работу</Button> : <Button size={'l'} stretched={true} onClick={() => this.sendData()}>Я буду</Button>
 						})()
 					}
 

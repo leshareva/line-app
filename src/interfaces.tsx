@@ -12,6 +12,7 @@ export class iUser {
 	'Уровень': number  = null
 	'Email'?: string  = null
 	recID: string
+	photo_200?: string
 }
 
 export interface iModalData {

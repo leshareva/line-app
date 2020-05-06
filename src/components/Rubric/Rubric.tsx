@@ -1,6 +1,6 @@
 import React from 'react';
 import { Panel, Div, Card, Group, Progress, InfoRow } from '@vkontakte/vkui';
-import { base } from '../../airtable/airtable';
+import { base } from '../../Airtable';
 import "./Rubric.css";
 import Cover from '../Cover/Cover';
 import ReactMarkdown from 'react-markdown';

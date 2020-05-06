@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Panel, Cell, List, PanelHeader, Group, Avatar, platform, ANDROID, Progress, Button } from '@vkontakte/vkui'
+import { Panel, Cell, List, PanelHeader, Group, Avatar, platform, ANDROID, Progress, Card, CardScroll, Header, Div } from '@vkontakte/vkui'
 import Icon24BrowserForward from '@vkontakte/icons/dist/24/browser_forward'
 import "./Profile.css"
 import Cover from '../Cover/Cover'
@@ -23,22 +23,27 @@ interface iProfilePage {
     history: any[]
     achieves: any[]
     openModal: (modal: { type: string, data: iModalData }) => void
+    getLessons: () => Promise<void | any[]>
 }
 
 
 
 class Profile extends React.Component<iProfilePage, any> {
 
+    _isMounted: boolean = false
+
     constructor(props) {
         super(props)
 
         this.state = {
             tabs: ['rubrics', 'history'],
-            selectedTab: 'rubrics'
+            selectedTab: 'tasks',
+            lessons: []
         }
     }
 
-    componentDidMount() {
+    async componentDidMount() {
+        this._isMounted = true
 
         if (this.props.achieves && this.props.achieves.length !== 0) {
             if (!this.state.selectedTab) this.setState({ selectedTab: 'tasks' })
@@ -46,7 +51,16 @@ class Profile extends React.Component<iProfilePage, any> {
             tabs.push('tasks')
             this.setState({ tabs: tabs })
         }
+        if (this._isMounted) {
+            let lessons = await this.props.getLessons();
+            this.setState({ lessons: lessons })
+        }
     }
+
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+
 
 
     render() {
@@ -62,6 +76,21 @@ class Profile extends React.Component<iProfilePage, any> {
         } = this.props
 
 
+        let cardList = () => {
+            return (this.state.lessons && this.state.lessons.length !== 0)
+                ?
+                <Group header={<Header mode="secondary">Участвуй сегодня</Header>} separator="hide">
+                    <CardScroll>
+                        {(() => {
+                            return this.state.lessons.map(lesson => {
+                                //lesson['Обложка'] ? `url(${lesson['Обложка'][0]['url']})` :
+                                return <Card key={lesson.recID} style={{ color: 'white', background: 'linear-gradient(200.98deg, #485563 -13.11%, #29323C 75.28%)' }} size='m' onClick={() => go('lesson', { lessonID: lesson.recID, backTo: 'profile' })}><Div style={{ width: 144, height: 120 }} ><small>{lesson['Рубрика']}</small><br /><strong>{lesson['Name']}</strong><br /><small>+{lesson['Опыт']} опыта</small></Div></Card>
+                            })
+                        })()}
+                    </CardScroll>
+                </Group>
+                : null
+        }
 
         return (
 
@@ -86,8 +115,13 @@ class Profile extends React.Component<iProfilePage, any> {
 
                 <ProfileTabs tabs={this.state.tabs} history={this.props.history} selectedTab={this.state.selectedTab} onClickHandler={(tabName) => this.setState({ selectedTab: tabName })} />
 
-                {(this.state.selectedTab === 'tasks') ? <TodoCardsList achieves={achieves} openModal={openModal} user={user} /> : ''}
-
+                {(() => {
+                    if (this.state.selectedTab !== 'tasks') return
+                    return <>
+                        {cardList()}
+                        <TodoCardsList achieves={achieves} openModal={openModal} user={user} />
+                    </>
+                })()}
 
                 {(() => {
                     if (this.state.selectedTab === 'rubrics') {
@@ -101,8 +135,8 @@ class Profile extends React.Component<iProfilePage, any> {
                                         multiline
                                         description={rubric['desc']}
                                         asideContent={<Icon24BrowserForward fill="var(--icon_secondary)" />}
-                                        onClick={(e)=>go('rubric', rubric)}
-                                        >{rubric['Название']}</Cell>)
+                                        onClick={(e) => go('rubric', rubric)}
+                                    >{rubric['Название']}</Cell>)
                                 })}
                             </List>
                         </Group>
@@ -112,7 +146,8 @@ class Profile extends React.Component<iProfilePage, any> {
 
                 {(this.props.history.length !== 0 && this.state.selectedTab === 'history') ? <HistoryList history={this.props.history} /> : ''}
                 {snackbar}
-               
+
+
             </Panel>
 
         )

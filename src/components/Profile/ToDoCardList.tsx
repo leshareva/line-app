@@ -1,7 +1,7 @@
 import React from 'react'
 import { Group, Header, List, Cell, } from '@vkontakte/vkui';
 import { iModalData, iUser, iAchieve } from '../../interfaces';
-import { base } from '../../airtable/airtable';
+import { base } from '../../Airtable';
 
 
 
@@ -12,7 +12,7 @@ interface iTodoCardsList {
 }
 
 export default class TodoCardsList extends React.Component<iTodoCardsList, any> {
-
+    _isMounted: boolean = false
     constructor(props) {
         super(props)
 
@@ -21,17 +21,24 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
         }
     }
     async componentDidMount() {
+        this._isMounted = true
         let proms = this.props.achieves.map(achieve => this.fetchRubricHistory(achieve).then((userHistory: any[]) => {
-            
+
             achieve.achievedItems = userHistory || []
             let acivedItem = userHistory.filter(el => el['Ачивка']).find(el => el['Ачивка'][0] === achieve.recID)
-            achieve.acivedItem = acivedItem 
+            achieve.acivedItem = acivedItem
             return achieve
         }))
+        if(this._isMounted) {
+            this.setState({
+                achieves: await Promise.all(proms)
+            })
+        }
+        
+    }
 
-        this.setState({
-            achieves: await Promise.all(proms)
-        })
+    componentWillUnmount() {
+        this._isMounted = false;
     }
 
     async fetchRubricHistory(record: iAchieve) {
@@ -51,7 +58,7 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
     }
 
 
-    
+
 
     render() {
 
@@ -94,11 +101,11 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
             })
         }
 
-        return <Group header={<Header mode="secondary">Достижения</Header>} separator="hide">
+        return <Group header={<Header mode="secondary">Цели</Header>} separator="hide">
 
             <List >
-                {cells(achieves.filter(el=>!el.acivedItem).slice(0, 4))}
-                {cells(achieves.filter(el=>el.acivedItem))}
+                {cells(achieves.filter(el => !el.acivedItem).slice(0, 4))}
+                {cells(achieves.filter(el => el.acivedItem))}
             </List>
         </Group>
     }

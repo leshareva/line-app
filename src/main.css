@@ -167,3 +167,8 @@ a:-webkit-any-link {
 .HorizontalScroll .TabsItem {
   min-width: auto;
 }
+
+
+a:-webkit-any-link {
+  border-bottom: 2px solid var(--color-red);
+}

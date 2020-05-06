@@ -7,3 +7,7 @@ export const VK_SERVISE_KEY = 'f60c2422f60c2422f60c242263f6623d78ff60cf60c2422ab
 
 
 export const AMOUNT_TO_NEW_USER = 25;
+
+
+export const BASE_TRAIN = 'Тренировки';
+export const VIEW_TRAIN_UPCOMING = 'Ближайшие';

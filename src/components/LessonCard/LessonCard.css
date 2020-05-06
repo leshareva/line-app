@@ -1,6 +1,7 @@
 
 .desc {
   white-space: pre-wrap;
+  padding-bottom: calc(var(--wrapper-padding) * 10);
 }
 
 
@@ -16,5 +17,5 @@
 
 .bottomBar {
   text-align: left;
-  color: var(--button_primary_background)
+  /* color: var(--button_primary_background) */
 }

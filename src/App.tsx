@@ -2,24 +2,21 @@ import React from 'react';
 import bridge from '@vkontakte/vk-bridge';
 import { platform, ANDROID, View, ModalRoot } from '@vkontakte/vkui';
 import * as Typograf from 'typograf';
-
-import { base } from './airtable/airtable';
-import { R_VK_ID } from './airtable/constants';
-
+import { air_schema } from 'lean-air';
 import splash from './img/splash.GIF';
 import '@vkontakte/vkui/dist/vkui.css';
 import "./main.css";
-
-import { AMOUNT_TO_NEW_USER } from './constants';
+import { AMOUNT_TO_NEW_USER, BASE_TRAIN, VIEW_TRAIN_UPCOMING } from './constants';
 import Rubric from './components/Rubric/Rubric';
 import Profile from './components/Profile/Profile';
-
 import LessonCard from './components/LessonCard/LessonCard';
-
 import { ProgressSnackBar } from './components/ProgressSnackbar/ProgressSnackBar';
 import { iModalData, iUser, iRubric, iAchieve, iHistoryItem } from './interfaces';
 import ModalCardComponent from './components/ModalCardComponent';
 import { parseQueryString } from './components/Helpers';
+import { base } from './Airtable';
+
+
 
 
 const tp = new Typograf({ locale: ['ru', 'en-US'] });
@@ -98,8 +95,8 @@ class App extends React.Component<any, iAppState> {
 					let rubrics = await this.fetchRubricsData()
 					let history = await this.fetchHistoryData(rubrics, e.detail.data)
 					let userData = await this.fetchUserData(e.detail.data);
-					let purchases = await this.fetchUserPusrchases(userData["VK-ID"]);
-					let exp = Math.round(userData['Опыт'] ? userData['Опыт'] : 0);
+					let purchases = await this.fetchUserPusrchases(userData[air_schema.f_users.vk_id]);
+					let exp = Math.round(userData[air_schema.f_users.experience] ? userData[air_schema.f_users.experience] : 0);
 					let achieves = await this.fetchAchieves() as any[];
 					let sl = exp.toString()
 					userData.levelExperience = (sl.length > 3) ? +sl.slice(sl.length - 3) : +sl
@@ -140,8 +137,6 @@ class App extends React.Component<any, iAppState> {
 		(osname === ANDROID) ? bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "light", "action_bar_color": "#000000" }) : bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "light", });
 		bridge.send('VKWebAppGetUserInfo', {});
 
-
-
 	}
 
 
@@ -151,26 +146,24 @@ class App extends React.Component<any, iAppState> {
 
 
 
-
-
 	async fetchUserData(user: iUser): Promise<iUser> {
-		let fields = new iUser()
+		let fields = new iUser() 
 		let data: iUser
-		data = await base.list('Участники', {
-			filterByFormula: `{${R_VK_ID}} = ${user.id}`, fields: Object.keys(fields).filter(key => fields[key] !== undefined)
+		data = await base.list(air_schema.t_users, {
+			filterByFormula: `{${air_schema.f_users.vk_id}} = ${user.id}`, fields: Object.keys(fields).filter(key => fields[key] !== undefined)
 		}).then(res => res[0]);
 
-		return data ? data : base.create({ 'Имя': `${user.first_name} ${user.last_name}`, [R_VK_ID]: user.id }, 'Участники')
+		return data ? data : base.create({ [air_schema.f_users.name]: `${user.first_name} ${user.last_name}`, [air_schema.f_users.vk_id]: user.id }, air_schema.t_users)
 			.then(res => base.create({
-				"Баллы": AMOUNT_TO_NEW_USER,
-				"Профиль": [res.recID],
-				"Комментарий": "Первое начисление"
-			}, "Начисления: разминки"))
+				[air_schema.f_history.points]: AMOUNT_TO_NEW_USER,
+				[air_schema.f_history.user]: [res.recID],
+				[air_schema.f_history.comment]: "Первое начисление"
+			}, air_schema.t_history))
 
 	}
 
 	async fetchUserPusrchases(userID: number): Promise<any> {
-		return base.list('Покупки', { filterByFormula: `AND({VK-ID}=${userID}, NOT({Статус}="Архив"))` })
+		return base.list(air_schema.t_purchases, { filterByFormula: `AND({${air_schema.f_purchases.vk_id}}=${userID}, NOT({${air_schema.f_purchases.status}}="Архив"))` })
 	}
 
 
@@ -221,6 +214,10 @@ class App extends React.Component<any, iAppState> {
 		)
 
 		return Promise.all(proms).then((res: Array<[]>) => [].concat(...res))
+	}
+
+	async fetchLessons() {
+		return base.list(BASE_TRAIN, { view: 'На главной в Линии' })
 	}
 
 
@@ -305,6 +302,7 @@ class App extends React.Component<any, iAppState> {
 					history={history}
 					achieves={achieves}
 					openModal={(modal) => this.setActiveModal(modal)}
+					getLessons={() => this.fetchLessons()}
 				/>
 				<Rubric
 					id='rubric'
@@ -319,6 +317,7 @@ class App extends React.Component<any, iAppState> {
 					lessonID={meta.lessonID}
 					user={user}
 					purchases={purchases}
+					backTo={meta.backTo}
 				/>
 			</View >
 		)
