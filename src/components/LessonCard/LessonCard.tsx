@@ -6,8 +6,8 @@ import Cover from '../Cover/Cover';
 import ReactMarkdown from 'react-markdown';
 import bridge from '@vkontakte/vk-bridge';
 import Navbar from '../Navbar/Navbar';
-import { parseQueryString, parseDate, Time } from '../Helpers';
-import { iUser } from '../../interfaces';
+import { parseQueryString, parseDate, Time, formatLessonTime } from '../Helpers';
+import { iUser, iRubric } from '../../interfaces';
 import { base } from '../../Airtable';
 
 
@@ -20,6 +20,8 @@ interface iLessonCard {
 	onBackClick: (route: string, meta?: any) => void
 	backTo?: string
 	purchases: any[]
+	rubric?: iRubric
+	lesson?: any
 }
 
 
@@ -36,7 +38,15 @@ class LessonCard extends React.Component<iLessonCard, any> {
 	async componentDidMount() {
 		this._isMounted = true;
 
-		await this.fetchLessonData();
+		let { lesson, rubric } = this.props
+
+		//если передан объект lesson, то используем его, если нет, то делаем фетч
+		let les = lesson ? lesson : await this.fetchLessonData();
+		if (!les) return this.props.onBackClick('profile')
+		//если передана объект rubric, то используем его, если нет, то делаем фетч
+		let rub = rubric ? rubric : await this.fetchRubric(les['RubricID']);
+		if (this._isMounted) this.setState({ rubric: rub, lesson: les })
+
 		if (this.state.lesson) this.checkPermissions();
 		(osname === ANDROID) ? bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", "action_bar_color": "#ffffff" }) : bridge.send("VKWebAppSetViewSettings", { "status_bar_style": "dark", });
 	}
@@ -47,38 +57,13 @@ class LessonCard extends React.Component<iLessonCard, any> {
 
 	async fetchLessonData() {
 		let lessons = await base.list('Тренировки', { filterByFormula: `{recID}="${this.props.lessonID}"` })
-		if (!lessons[0]) return this.props.onBackClick('profile')
-		let lesson = this.formatTime(lessons[0]);
-
-		let rubric = await this.fetchRubric(lesson['RubricID'])
-		if (this._isMounted) {
-			this.setState({ rubric: rubric, lesson: lesson })
-		}
-
-
-
-		return
-
+		if (!lessons[0]) return null
+		let lesson = formatLessonTime(lessons[0]);
+		return lesson
 	}
 
 
-	formatTime(el: any) {
-		const days = {
-			0: 'вс',
-			1: 'пн',
-			2: 'вт',
-			3: 'ср',
-			4: 'чт',
-			5: 'пт',
-			6: 'сб'
-		}
-
-		let key = parseDate(el['Дата']).replace(/^(\d+\s.+?)\s.+/gs, '$1');
-		el['День недели'] = days[new Date(el['Дата']).getDay()]
-		el['Время'] = Time(el['Дата'])
-		el['Дата'] = key;
-		return el
-	}
+	
 
 	sendData = async () => {
 		// let data = this.state.lesson;
@@ -154,7 +139,7 @@ class LessonCard extends React.Component<iLessonCard, any> {
 
 		if (!lesson || !user) return <div id={id}>…</div>
 		let getImage = () => lesson['Обложка'] ? <Avatar src={lesson['Обложка'][0]['url']} mode="image" size={80} /> : null
-		
+
 		return (
 
 			<Panel id={id}>

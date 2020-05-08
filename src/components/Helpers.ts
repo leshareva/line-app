@@ -45,57 +45,22 @@ export function Time(date) {
 }
 
 
-
-
-
-
-//класс для сохранения и удаления файлов на сервер
-
-export class Files {
-
-    constructor() { }
-
-    download(url, path_to, name): Promise<string | any> {
-        let p = new Promise(function (resolve, reject) {
-            let dest = path.join(path_to, name);
-            let writeStream = fs.createWriteStream(dest);
-
-            // Avisando a promise que acabamos por aqui
-            writeStream.on("finish", function () {
-                resolve(dest as string);
-            });
-
-            // Capturando erros da write stream
-            writeStream.on("error", function (err) {
-                fs.unlink(dest, reject.bind(null, err));
-            });
-
-            let readStream = request.get(url);
-
-            // Capturando erros da request stream
-            readStream.on("error", function (err) {
-                fs.unlink(dest, reject.bind(null, err));
-            });
-
-            // Iniciando a transferência de dados
-            readStream.pipe(writeStream);
-        });
-
-        // Manter compatibilidade com callbacks
-        return p;
-
-        // p.then(function(id) {
-        //   callback(null, id);
-        // }).catch(function(err) {
-        //   callback(err);
-        // });
+export function formatLessonTime(el: any) {
+    const days = {
+        0: 'вс',
+        1: 'пн',
+        2: 'вт',
+        3: 'ср',
+        4: 'чт',
+        5: 'пт',
+        6: 'сб'
     }
 
-    unlinkFile(path) {
-        fs.unlink(path, err => {
-            if (err) console.error(err.stack);
-            console.log(path + " was deleted");
-        });
-    }
-
+    let key = parseDate(el['Дата']).replace(/^(\d+\s.+?)\s.+/gs, '$1');
+    el['День недели'] = days[new Date(el['Дата']).getDay()]
+    el['Время'] = Time(el['Дата'])
+    el['Дата'] = key;
+    return el
 }
+
+

@@ -17,7 +17,7 @@ export default class ProfileTabs extends React.Component<iProfileTabs, any> {
 
         return <Tabs>
             <HorizontalScroll>
-
+                
                 {
                     (() => {
                         if (tabs.find(el => el === 'tasks')) {
@@ -39,8 +39,6 @@ export default class ProfileTabs extends React.Component<iProfileTabs, any> {
                         }
                     })()
                 }
-
-
 
 
 

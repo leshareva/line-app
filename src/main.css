@@ -55,10 +55,13 @@ body {
 }
 
 .Button {
-  border: 2px solid;
-  border-color: var(--button_primary_background);
-  color: var(--button_primary_background);
-  background-color: white;
+  /* border: 2px solid; */
+  /* border-color: var(--button_primary_background); */
+  border: none !important;
+  text-decoration: none ;
+
+  color: white !important;
+  background-color: var(--color-spacegray);
   font-weight: bold !important;
 }
 
@@ -75,8 +78,9 @@ body {
   background-color: white;
   width: 100vw;
   text-align: center;
+  height: 60px;
   font-size: var(--body-font-size);
-  padding: var(--wrapper-padding) var(--wrapper-padding-2x);
+  padding: var(--wrapper-padding) var(--wrapper-padding-2x) var(--wrapper-padding-2x) var(--wrapper-padding-2x);
 }
 
 .bottomBar .Button {
@@ -156,7 +160,7 @@ p {
 
 a:-webkit-any-link {
   color: #e03800;
-  border-bottom: 1px solid rgba(222, 58, 24, 0.2);
+  /* border-bottom: 1px solid rgba(222, 58, 24, 0.2); */
   text-decoration: none;
 }
 

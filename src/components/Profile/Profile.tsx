@@ -38,13 +38,14 @@ class Profile extends React.Component<iProfilePage, any> {
         this.state = {
             tabs: ['rubrics', 'history'],
             selectedTab: 'tasks',
-            lessons: []
+            lessons: [],
+            isLoading: false
         }
     }
 
     async componentDidMount() {
         this._isMounted = true
-
+        this.setState({ isLoading: true })
         if (this.props.achieves && this.props.achieves.length !== 0) {
             if (!this.state.selectedTab) this.setState({ selectedTab: 'tasks' })
             let tabs = this.state.tabs
@@ -53,7 +54,7 @@ class Profile extends React.Component<iProfilePage, any> {
         }
         if (this._isMounted) {
             let lessons = await this.props.getLessons();
-            this.setState({ lessons: lessons })
+            this.setState({ lessons: lessons, isLoading: false })
         }
     }
 
@@ -77,19 +78,33 @@ class Profile extends React.Component<iProfilePage, any> {
 
 
         let cardList = () => {
-            return (this.state.lessons && this.state.lessons.length !== 0)
-                ?
-                <Group header={<Header mode="secondary">Участвуй сегодня</Header>} separator="hide">
-                    <CardScroll>
-                        {(() => {
+            return <Group header={this.state.isLoading ? <div className="loader" style={{ marginLeft: 'var(--wrapper-padding)', height: 'var(--wrapper-padding-2x)', width: '150px', }}></div> : <Header mode="secondary">Участвуй сегодня</Header>} separator="hide">
+                <CardScroll>
+                    {(() => {
+                        if (this.state.isLoading)
+                            return [1, 2].map((el, i) => <Card key={i} size='m' className='loader' ><Div style={{ width: 144, height: 120 }}></Div></Card>)
+
+                        if (this.state.lessons && this.state.lessons !== 0) {
                             return this.state.lessons.map(lesson => {
                                 //lesson['Обложка'] ? `url(${lesson['Обложка'][0]['url']})` :
-                                return <Card key={lesson.recID} style={{ color: 'white', background: 'linear-gradient(200.98deg, #485563 -13.11%, #29323C 75.28%)' }} size='m' onClick={() => go('lesson', { lessonID: lesson.recID, backTo: 'profile' })}><Div style={{ width: 144, height: 120 }} ><small>{lesson['Рубрика']}</small><br /><strong>{lesson['Name']}</strong><br /><small>+{lesson['Опыт']} опыта</small></Div></Card>
+                                return <Card
+                                    key={lesson.recID}
+                                    style={{ color: 'white', background: 'linear-gradient(200.98deg, #485563 -13.11%, #29323C 75.28%)' }}
+                                    size='m'
+                                    onClick={() => go('lesson', { lessonID: lesson.recID, lesson: lesson, backTo: 'profile' })}
+                                >
+                                    <Div style={{ width: 144, height: 120 }} ><small>{lesson['Рубрика']}</small><br /><strong>{lesson['Name']}</strong><br /><small>+{lesson['Опыт']} опыта</small></Div>
+                                </Card>
                             })
-                        })()}
-                    </CardScroll>
-                </Group>
-                : null
+                        }
+
+
+
+
+                    })()}
+                </CardScroll>
+            </Group>
+
         }
 
         return (
@@ -119,7 +134,7 @@ class Profile extends React.Component<iProfilePage, any> {
                     if (this.state.selectedTab !== 'tasks') return
                     return <>
                         {cardList()}
-                        <TodoCardsList achieves={achieves} openModal={openModal} user={user} />
+                        <TodoCardsList achieves={achieves} openModal={openModal} user={user} rubrics={rubrics} onButtonClick={go}/>
                     </>
                 })()}
 

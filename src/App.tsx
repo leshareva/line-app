@@ -13,7 +13,7 @@ import LessonCard from './components/LessonCard/LessonCard';
 import { ProgressSnackBar } from './components/ProgressSnackbar/ProgressSnackBar';
 import { iModalData, iUser, iRubric, iAchieve, iHistoryItem } from './interfaces';
 import ModalCardComponent from './components/ModalCardComponent';
-import { parseQueryString } from './components/Helpers';
+import { parseQueryString, formatLessonTime } from './components/Helpers';
 import { base } from './Airtable';
 
 
@@ -147,7 +147,7 @@ class App extends React.Component<any, iAppState> {
 
 
 	async fetchUserData(user: iUser): Promise<iUser> {
-		let fields = new iUser() 
+		let fields = new iUser()
 		let data: iUser
 		data = await base.list(air_schema.t_users, {
 			filterByFormula: `{${air_schema.f_users.vk_id}} = ${user.id}`, fields: Object.keys(fields).filter(key => fields[key] !== undefined)
@@ -217,7 +217,7 @@ class App extends React.Component<any, iAppState> {
 	}
 
 	async fetchLessons() {
-		return base.list(BASE_TRAIN, { view: 'На главной в Линии' })
+		return base.list(BASE_TRAIN, { view: 'На главной в Линии' }).then((arr: any[]) => arr.map(el => formatLessonTime(el)))
 	}
 
 
@@ -244,16 +244,6 @@ class App extends React.Component<any, iAppState> {
 		this.setState({ activeView: route })
 		return
 	};
-
-	// go = async (route: string, meta: any) => {
-	// 	const route = e.currentTarget.dataset.to;
-	// 	const meta = e.currentTarget.dataset.meta;
-	// 	const parseMeta = meta ? JSON.parse(meta) : null
-	// 	if (parseMeta) this.setState({ meta: parseMeta })
-
-	// 	this.setState({ activeView: route })
-	// 	return
-	// };
 
 	onRubricCellClickHandler = (route: string, meta: any) => {
 		this.setState({ activeView: route })
@@ -315,6 +305,7 @@ class App extends React.Component<any, iAppState> {
 					id="lesson"
 					onBackClick={this.go}
 					lessonID={meta.lessonID}
+					lesson={meta.lesson}
 					user={user}
 					purchases={purchases}
 					backTo={meta.backTo}

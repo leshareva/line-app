@@ -1,6 +1,6 @@
 import React from 'react'
 import { Group, Header, List, Cell, } from '@vkontakte/vkui';
-import { iModalData, iUser, iAchieve } from '../../interfaces';
+import { iModalData, iUser, iAchieve, iRubric } from '../../interfaces';
 import { base } from '../../Airtable';
 
 
@@ -9,6 +9,8 @@ interface iTodoCardsList {
     user: iUser
     achieves: iAchieve[]
     openModal: (modal: { type: string, data: iModalData }) => void
+    onButtonClick?: (route: string, meta: any) => void
+    rubrics: iRubric[]
 }
 
 export default class TodoCardsList extends React.Component<iTodoCardsList, any> {
@@ -23,18 +25,17 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
     async componentDidMount() {
         this._isMounted = true
         let proms = this.props.achieves.map(achieve => this.fetchRubricHistory(achieve).then((userHistory: any[]) => {
-
             achieve.achievedItems = userHistory || []
             let acivedItem = userHistory.filter(el => el['Ачивка']).find(el => el['Ачивка'][0] === achieve.recID)
             achieve.acivedItem = acivedItem
             return achieve
         }))
-        if(this._isMounted) {
+        if (this._isMounted) {
             this.setState({
                 achieves: await Promise.all(proms)
             })
         }
-        
+
     }
 
     componentWillUnmount() {
@@ -62,7 +63,7 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
 
     render() {
 
-        let { achieves, openModal } = this.props
+        let { achieves, openModal, rubrics, onButtonClick } = this.props
 
         // const checkIfTaskDone = (task: any): boolean => {
         //     if (!task['Участники']) return false
@@ -72,7 +73,7 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
         // }
 
         const cells = (arr: iAchieve[]) => {
-            return arr.map((el, i) => {
+            return arr.map((achive, i) => {
 
                 return <Cell
                     key={i}
@@ -80,9 +81,10 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
                     onClick={() => openModal({
                         type: 'modal',
                         data: {
-                            title: el['Name'],
-                            desc: el['Описание'],
-                            // onButtonClickHandler: () => { console.log('Привет, мир!') },
+                            title: achive['Name'],
+                            desc: achive['Описание'],
+                            onButtonClickHandler: () => onButtonClick('rubric', rubrics.find(el => el.recID === achive.RubricID)),
+                            buttonLabel: 'Перейти в рубрику'
                             // body: (<Div>Вот мой прогресс</Div>)
                         }
                     })}
@@ -90,13 +92,13 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
 
                     before={<div className="roundContainer">
                         <div className="round">
-                            <label className="roundCircle" style={el.acivedItem ? { backgroundColor: 'var(--color-spacegray)' } : { backgroundColor: '#fff' }}></label>
+                            <label className="roundCircle" style={achive.acivedItem ? { backgroundColor: 'var(--color-spacegray)' } : { backgroundColor: '#fff' }}></label>
                         </div>
                     </div>}
 
-                    description={!el.acivedItem ? `Выполнено ${el.achievedItems ? el.achievedItems.length : 0} из ${el["Кол-во работ"]}` : `+ ${el.acivedItem['Опыт']} опыта`}
+                    description={!achive.acivedItem ? `Выполнено ${achive.achievedItems ? achive.achievedItems.length : 0} из ${achive["Кол-во работ"]}` : `+ ${achive.acivedItem['Опыт']} опыта`}
                 >
-                    <div style={el.acivedItem ? { textDecoration: 'line-through', color: 'var(--color-spacegray)' } : {}}>{`${el['Name']}`}</div>
+                    <div style={achive.acivedItem ? { textDecoration: 'line-through', color: 'var(--color-spacegray)' } : {}}>{`${achive['Name']}`}</div>
                 </Cell>
             })
         }

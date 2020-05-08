@@ -42,7 +42,6 @@ export class iRubric {
 	recID: string;
 	desc: string;
 	'Название': string = null;
-	'Опыт': number = null;
 	'Таблица': string = null;
 	'Обложка': any[] = null;
 	'Описание': string = null;
