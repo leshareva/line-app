@@ -1,5 +1,5 @@
 import React from 'react'
-import { Group, List, Cell, Avatar } from '@vkontakte/vkui'
+import { Group, List, Cell, Avatar, Spinner } from '@vkontakte/vkui'
 import Icon24BrowserForward from '@vkontakte/icons/dist/24/browser_forward'
 
 interface iRubricsList {
@@ -13,7 +13,8 @@ export default class RubricsList extends React.Component<iRubricsList, any> {
     _isMounted: boolean = false
 
     state = {
-        rubrics: []
+        rubrics: [],
+        isLoading: false
     }
 
     async componentDidMount() {
@@ -24,7 +25,7 @@ export default class RubricsList extends React.Component<iRubricsList, any> {
         const rubrics = await this.props.fetchRubrics()
 
         if (this._isMounted) {
-            this.setState({ rubrics: rubrics })
+            this.setState({ rubrics: rubrics, isLoading: false })
         }
     }
 
@@ -35,7 +36,8 @@ export default class RubricsList extends React.Component<iRubricsList, any> {
     render() {
         let { go } = this.props
 
-        if(this.state.rubrics.length === 0) return <></>
+        if(this.state.isLoading) return <div style={{ marginTop: '40px' }}><Spinner size="medium" /></div>
+
         return <Group title="Рубрики" >
             <List>
                 {this.state.rubrics.map((rubric, i) => {

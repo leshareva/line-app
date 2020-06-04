@@ -1,5 +1,5 @@
 import React from 'react';
-import { Panel, Div, FixedLayout, Button, Link, ANDROID, platform, Group, Header, Cell } from '@vkontakte/vkui';
+import { Panel, Div, FixedLayout, Button, Link, ANDROID, platform, Group, Header, Cell, Spinner } from '@vkontakte/vkui';
 import "./EventDetailComponent.css";
 import ReactMarkdown from 'react-markdown';
 import bridge from '@vkontakte/vk-bridge';
@@ -77,7 +77,9 @@ class EventDetailComponent extends React.Component<iEventDetailComponent, any> {
 
 
 	async fetchLessonData() {
+		
 		let lesson = await this.props.api.events.list({filterByFormula: `{recID}="${this.props.lessonID}"`}, true).then(res=>res[0])
+		
 		if (!lesson) return null
 		return formatLessonTime(lesson)
 	}
@@ -85,8 +87,8 @@ class EventDetailComponent extends React.Component<iEventDetailComponent, any> {
 
 	sendData = async () => {
 		// let data = this.state.lesson;
-		let { rubric, purchases } = this.state
-		let { user, lesson } = this.props
+		let { rubric, purchases, lesson } = this.state
+		let { user,  } = this.props
 
 		let purchase;
 		if (rubric && rubric['Товар'] && purchases)
@@ -192,7 +194,7 @@ class EventDetailComponent extends React.Component<iEventDetailComponent, any> {
 			return result
 		}
 
-		if (!lesson || !user) return <div id={id}>…</div>
+		if (!lesson || !user) return <div id={id} style={{ marginTop: '40px' }}><Spinner size="medium" /></div>
 
 
 		let renderBottomBar = () => {

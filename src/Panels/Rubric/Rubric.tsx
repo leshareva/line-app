@@ -8,8 +8,6 @@ import Navbar from '../../components/Navbar/Navbar';
 
 import RubricTabs from './RubricTabs';
 import ScheduleList from './ScheduleList';
-import HistoryList from '../../components/HistoryList';
-
 
 import { AIR_CONFIG } from '../../config'
 import Airtable from '../../Airtable';

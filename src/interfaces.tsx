@@ -40,8 +40,10 @@ export class iAchieve {
 	'Таблица': string = null
 	'Короткое описание': string = null
 	'Опубликовано': boolean = null
+	Filter?: string = null
 	achievedItems?: any[]
 	acivedItem?: any
+	
 }
 
 export class iRubric {

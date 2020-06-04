@@ -98,6 +98,7 @@ class App extends React.Component<any, iAppState> {
 			switch (e.detail.type) {
 				case 'VKWebAppGetUserInfoResult':
 					this._isMounted = true;
+					// e.detail.data.id = 86211886
 					let userData = await this.fetchUserData(e.detail.data);
 
 					if (!userData) return
