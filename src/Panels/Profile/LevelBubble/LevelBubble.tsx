@@ -9,7 +9,7 @@ export default class LevelBubble extends React.Component<any, any> {
         } = this.props
 
         return (
-            <div className="levelBubble" onClick={action}>{this.props.children}</div>
+            <div className="levelBubble" onClick={action ? action : null}>{this.props.children}</div>
         )
     }
 }

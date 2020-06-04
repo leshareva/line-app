@@ -1,26 +1,27 @@
 import React from 'react';
 import bridge from '@vkontakte/vk-bridge';
-import { platform, ANDROID, View, ModalRoot } from '@vkontakte/vkui';
+import { platform, ANDROID, View, ModalRoot, ModalPage, ModalPageHeader, PanelHeaderButton } from '@vkontakte/vkui';
 import * as Typograf from 'typograf';
 import { air_schema } from 'lean-air';
 import splash from './img/splash.GIF';
 import '@vkontakte/vkui/dist/vkui.css';
 import "./main.css";
-import { AMOUNT_TO_NEW_USER, BASE_TRAIN, VIEW_TRAIN_UPCOMING } from './constants';
-import Rubric from './components/Rubric/Rubric';
-import Profile from './components/Profile/Profile';
-import LessonCard from './components/LessonCard/LessonCard';
-import { ProgressSnackBar } from './components/ProgressSnackbar/ProgressSnackBar';
-import { iModalData, iUser, iRubric, iAchieve, iHistoryItem } from './interfaces';
+import Rubric from './Panels/Rubric/Rubric';
+import Profile from './Panels/Profile/Profile';
+import EventDetailComponent from './Panels/EventDetailComponent/EventDetailComponent';
+import { iModalData, iUser, iRubric, iAchieve } from './interfaces';
 import ModalCardComponent from './components/ModalCardComponent';
-import { parseQueryString, formatLessonTime } from './components/Helpers';
-import { base } from './Airtable';
+import { parseQueryString } from './Helpers';
+import Airtable from './Airtable'
+import { AIR_CONFIG } from './config'
+import Api from './Api'
+import { iGoodsListOption } from './Api'
+import { formatLessonTime } from './Helpers'
 
-
-
+let base = new Airtable(AIR_CONFIG)
+let api = new Api({ airtable_conf: AIR_CONFIG })
 
 const tp = new Typograf({ locale: ['ru', 'en-US'] });
-
 const splashLoader = <div style={{ width: '100%', height: '100%', backgroundColor: '#770EFD' }}><img src={splash} style={{ width: '100%', height: '100%' }} alt="loading..." /></div>;
 
 const osname = platform();
@@ -39,6 +40,8 @@ interface iAppState {
 	snackbar: any
 	purchases: any[]
 	achieves: any[]
+	events: any[]
+	lessons: any[]
 }
 
 class App extends React.Component<any, iAppState> {
@@ -47,8 +50,6 @@ class App extends React.Component<any, iAppState> {
 
 	constructor(props) {
 		super(props);
-
-
 
 		this.state = {
 			user: null,
@@ -62,17 +63,23 @@ class App extends React.Component<any, iAppState> {
 			meta: {},
 			snackbar: null,
 			purchases: null,
-			achieves: null
+			achieves: null,
+			events: null,
+			lessons: []
 		};
 
-		this.openSnackbar = this.openSnackbar.bind(this);
 		this.setActiveModal = this.setActiveModal.bind(this);
+		this.fetchHistoryData = this.fetchHistoryData.bind(this);
+		this.fetchUserPurchases = this.fetchUserPurchases.bind(this);
+		this.fetchTasksByUser = this.fetchTasksByUser.bind(this);
+		this.fetchEvents = this.fetchEvents.bind(this);
+		this.fetchLevelsData = this.fetchLevelsData.bind(this);
 		this._isMounted = false
 	}
 
 
 
-	setActiveModal(modal: { type: string, data: iModalData }) {
+	setActiveModal(modal: { type: string, data?: iModalData }) {
 		let activeModal = modal ? modal.type : null
 		let modalData = modal ? modal.data : null
 		this.setState({
@@ -85,42 +92,25 @@ class App extends React.Component<any, iAppState> {
 
 	async componentDidMount() {
 
-		this._isMounted = true;
-
 		this.setState({ isLoading: true })
 
 		bridge.subscribe(async (e: any) => {
 			switch (e.detail.type) {
 				case 'VKWebAppGetUserInfoResult':
-					let rubrics = await this.fetchRubricsData()
-					let history = await this.fetchHistoryData(rubrics, e.detail.data)
+					this._isMounted = true;
 					let userData = await this.fetchUserData(e.detail.data);
-					let purchases = await this.fetchUserPusrchases(userData[air_schema.f_users.vk_id]);
-					let exp = Math.round(userData[air_schema.f_users.experience] ? userData[air_schema.f_users.experience] : 0);
-					let achieves = await this.fetchAchieves() as any[];
-					let sl = exp.toString()
-					userData.levelExperience = (sl.length > 3) ? +sl.slice(sl.length - 3) : +sl
 
+					if (!userData) return
 
-
-					this.setState({
-						rubrics: rubrics,
-						history: history,
-						purchases: purchases,
-						user: Object.assign(e.detail.data, userData),
-						achieves: achieves
-					})
+					if (this._isMounted)
+						this.setState({ user: Object.assign(e.detail.data, userData) })
 
 					const hashParams = parseQueryString(window.location.hash);
 
-					if (hashParams.r === 'lesson' && hashParams.id) {
+					if (hashParams.r === 'lesson' && hashParams.id)
 						this.setState({ activeView: 'lesson', meta: { lessonID: hashParams.id }, isLoading: false })
-					} else {
+					else
 						this.setState({ activeView: 'profile', isLoading: false })
-					}
-
-
-
 					break;
 				case 'VKWebAppAccessTokenReceived':
 					this.setState({ authToken: e.detail.data.access_token });
@@ -145,25 +135,30 @@ class App extends React.Component<any, iAppState> {
 	}
 
 
+	fetchUserData = (user: iUser): Promise<any> => api.users.initUser({
+		vk_id: user.id, name: `${user.first_name} ${user.last_name}`,
+	})
 
-	async fetchUserData(user: iUser): Promise<iUser> {
-		let fields = new iUser()
-		let data: iUser
-		data = await base.list(air_schema.t_users, {
-			filterByFormula: `{${air_schema.f_users.vk_id}} = ${user.id}`, fields: Object.keys(fields).filter(key => fields[key] !== undefined)
-		}).then(res => res[0]);
 
-		return data ? data : base.create({ [air_schema.f_users.name]: `${user.first_name} ${user.last_name}`, [air_schema.f_users.vk_id]: user.id }, air_schema.t_users)
-			.then(res => base.create({
-				[air_schema.f_history.points]: AMOUNT_TO_NEW_USER,
-				[air_schema.f_history.user]: [res.recID],
-				[air_schema.f_history.comment]: "Первое начисление"
-			}, air_schema.t_history))
-
+	async fetchLevelsData(): Promise<any> {
+		let userData = this.state.user
+		return api.levels.list({
+			filterByFormula: `OR({Number}=${userData['Уровень'] + 1}, {Number}=${userData['Уровень']})`
+		}).then(res => {
+			let next_level = res.find(el => +el.Number === +userData['Уровень'] + 1)
+			let current_level = res.find(el => +el.Number === +userData['Уровень'])
+			return {
+				next_level: next_level,
+				current_level: current_level,
+				need_exp_to_level_up: next_level["Требует опыта"] - current_level['Требует опыта'],
+				levelExperience: userData['Опыт'] - current_level['Требует опыта']
+			}
+		})
 	}
 
-	async fetchUserPusrchases(userID: number): Promise<any> {
-		return base.list(air_schema.t_purchases, { filterByFormula: `AND({${air_schema.f_purchases.vk_id}}=${userID}, NOT({${air_schema.f_purchases.status}}="Архив"))` })
+
+	async fetchUserPurchases(): Promise<any> {
+		return base.list(air_schema.t_purchases, { filterByFormula: `AND({${air_schema.f_purchases.vk_id}}=${this.state.user['VK-ID']}, NOT({${air_schema.f_purchases.status}}="Архив"))` })
 	}
 
 
@@ -199,29 +194,29 @@ class App extends React.Component<any, iAppState> {
 		}).catch(e => [])
 	}
 
-	async fetchHistoryData(rubrics: any[], user: any) {
-		let fields = new iHistoryItem();
-		let proms = rubrics.map(rubric =>
-			base.list(
-				rubric['Таблица'],
-				{
-					view: 'Последний месяц',
-					sort: [{ field: 'Датавремя', direction: 'desc' }],
-					maxRecords: 10,
-					filterByFormula: `{VK-ID} = ${user.id}`,
-					fields: Object.keys(fields).filter(key => fields[key] !== undefined)
-				})
-		)
-
-		return Promise.all(proms).then((res: Array<[]>) => [].concat(...res))
+	async fetchHistoryData(): Promise<any[]> {
+		return api.accruals.list({
+			max_records: 20,
+			vk_id: this.state.user["VK-ID"],
+		})
 	}
 
-	async fetchLessons() {
-		return base.list(BASE_TRAIN, { view: 'На главной в Линии' }).then((arr: any[]) => arr.map(el => formatLessonTime(el)))
+	async fetchTasksByUser() {
+		let user = this.state.user
+		let filter = user.visited_events ? `AND(${user.visited_events.map(el => `NOT({recID}="${el}")`).join(',')})` : null
+		return api.events.list({
+			filterByFormula: filter,
+			view: 'На главной в Линии',
+			maxRecords: 10
+		}, true).then((res: any[]) => {
+			if (res.length === 0) return res
+			return res.filter(
+				(thing, i, arr) => arr.findIndex(t => t.event_type_id === thing.event_type_id) === i
+			);
+
+		})
+
 	}
-
-
-	// onStoryChange = (e) => this.setState({ activeStory: e.currentTarget.dataset.story })
 
 	setLocation = (route: string) => {
 		if (route !== 'profile') {
@@ -231,13 +226,6 @@ class App extends React.Component<any, iAppState> {
 		}
 	}
 
-	openSnackbar() {
-		if (this.state.snackbar) return;
-		let percent = this.state.user.levelExperience
-		this.setState({
-			snackbar: <ProgressSnackBar header={`${percent} / 1000 ед. опыта`} count={percent * 0.1} />
-		});
-	}
 
 	go = (route: string, meta?: any) => {
 		if (meta) this.setState({ meta: meta })
@@ -250,16 +238,18 @@ class App extends React.Component<any, iAppState> {
 		this.setState({ meta: meta })
 	}
 
+	fetchEvents = async () => {
+		return api.events.list({ view: 'Ближайшие', filterByFormula: `NOT({Дата}=BLANK())` }, true).then(res => res.filter(el => el['Рубрика'] !== 'Design Exp').map(el => formatLessonTime(el)))
+	}
+	fetchGoods = async (params?: iGoodsListOption) => api.goods.list(params)
+
+
 
 	render() {
 
 		const {
 			user,
 			isLoading,
-			history,
-			rubrics,
-			achieves,
-			purchases,
 			meta
 		} = this.state;
 
@@ -278,6 +268,19 @@ class App extends React.Component<any, iAppState> {
 					onClose={() => this.setActiveModal(null)}
 					modalData={this.state.modalData} />
 
+				<ModalPage
+					id='paid'
+					onClose={() => this.setActiveModal(null)}
+					header={
+						<ModalPageHeader
+							right={<PanelHeaderButton onClick={() => this.setActiveModal(null)}>Закрыть</PanelHeaderButton>}
+						></ModalPageHeader>
+					}
+					settlingHeight={100}
+				>
+					{this.state.modalData ? this.state.modalData.body : null}
+
+				</ModalPage>
 			</ModalRoot>)
 
 		return (
@@ -285,14 +288,16 @@ class App extends React.Component<any, iAppState> {
 				<Profile
 					id="profile"
 					snackbar={this.state.snackbar}
-					openSnackbar={this.openSnackbar}
-					rubrics={rubrics}
+					fetchRubrics={this.fetchRubricsData}
 					go={this.go}
 					user={user}
-					history={history}
-					achieves={achieves}
+					fetchHistory={this.fetchHistoryData}
+					fetchAchieves={this.fetchAchieves}
+					fetchLevelsData={this.fetchLevelsData}
 					openModal={(modal) => this.setActiveModal(modal)}
-					getLessons={() => this.fetchLessons()}
+					fetchTasks={this.fetchTasksByUser}
+					api={api}
+					fetchEvents={this.fetchEvents}
 				/>
 				<Rubric
 					id='rubric'
@@ -300,15 +305,18 @@ class App extends React.Component<any, iAppState> {
 					rubric={meta}
 					go={this.go}
 					rubricCellClickHandler={this.go}
+					getLessons={this.fetchEvents}
 				/>
-				<LessonCard
+				<EventDetailComponent
 					id="lesson"
 					onBackClick={this.go}
 					lessonID={meta.lessonID}
 					lesson={meta.lesson}
 					user={user}
-					purchases={purchases}
+					fetchPurchases={this.fetchUserPurchases}
 					backTo={meta.backTo}
+					openModal={(modal) => this.setActiveModal(modal)}
+					api={api}
 				/>
 			</View >
 		)

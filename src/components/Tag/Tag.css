@@ -1,0 +1,14 @@
+
+.amount_counter {
+    width: "fit-content";
+    height: "fit-content";
+    border: 1px solid var(--color-spacegray);
+    color: var(--color-spacegray);
+    display: inline-block;
+    padding: 0px 7px;
+    border-radius: 10px;
+    font-size: 12px;
+    line-height: 130%;
+    margin-right: 5px;
+  }
+  

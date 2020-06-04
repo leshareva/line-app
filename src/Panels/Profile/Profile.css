@@ -9,11 +9,27 @@
   margin-right: 8px;
 }
 
-.logo {
+.logo-wrapper {
   position: absolute;
   top: calc(0px + var(--wrapper-padding) * 5);
   left: var(--wrapper-padding);
+  display: flex;
+  align-items: flex-start;
 }
+
+.logo {
+  margin-top: 2px;
+}
+
+.logo-help {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 2px 10px;
+  margin-left: 10px;
+  border-radius: 4px;
+  border-bottom: none !important;
+  z-index: 1000;
+}
+
 
 .cellNegative {
   --text_primary: #770efd;
@@ -119,6 +135,12 @@
   top: 7px;
   transform: rotate(-45deg);
   width: 12px;
+}
+
+.lesson_date {
+  margin-top: var(--wrapper-padding-2x);
+  font-size: 12px;
+  line-height: 14px;
 }
 
 .loader {

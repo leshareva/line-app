@@ -1,0 +1,34 @@
+
+
+.lesson-body img{
+  width: 100%
+}
+
+
+.progressBar {
+  margin: 0 14px;
+}
+
+.Cell--ios .Cell__indicator {
+  padding: 0 !important;
+}
+
+.Group {
+  padding: 0;
+}
+
+.Header--ios {
+  padding: 0 var(--wrapper-padding-2x);
+}
+.Cell__indicator {
+  font-size: 14px;
+}
+
+.desc {
+  padding-bottom: 80px;
+}
+
+.bottomBar {
+  text-align: left;
+  /* color: var(--button_primary_background) */
+}

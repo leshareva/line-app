@@ -3,21 +3,22 @@ import { Tabs, TabsItem, HorizontalScroll } from '@vkontakte/vkui'
 
 interface iProfileTabs {
     tabs: string[]
-    history: any[]
     onClickHandler: (tabName: string) => void
     selectedTab: string
 }
 
 export default class ProfileTabs extends React.Component<iProfileTabs, any> {
 
-    render() {
-        let { history, onClickHandler, selectedTab, tabs } = this.props
+ 
 
-        if (!tabs||tabs.length === 0) return null
+    render() {
+        let { onClickHandler, selectedTab, tabs } = this.props
+
+        if (!tabs || tabs.length === 0) return null
 
         return <Tabs>
             <HorizontalScroll>
-                
+
                 {
                     (() => {
                         if (tabs.find(el => el === 'tasks')) {
@@ -27,6 +28,26 @@ export default class ProfileTabs extends React.Component<iProfileTabs, any> {
                             >Задания</TabsItem>
                         }
                     })()
+                }
+
+                {
+                    (() => {
+                        if (tabs.find(el => el === 'achieves')) {
+                            return <TabsItem
+                                onClick={() => onClickHandler('achieves')}
+                                selected={selectedTab === 'achieves'}
+                            >Достижения</TabsItem>
+                        }
+                    })()
+                }
+
+
+                {(tabs.find(el => el === 'history'))
+                    ? <TabsItem
+                        onClick={() => onClickHandler('history')}
+                        selected={selectedTab === 'history'}
+                    >Разборы</TabsItem>
+                    : null
                 }
 
                 {
@@ -42,13 +63,7 @@ export default class ProfileTabs extends React.Component<iProfileTabs, any> {
 
 
 
-                {(history && history.length !== 0 && tabs.find(el => el === 'history'))
-                    ? <TabsItem
-                        onClick={() => onClickHandler('history')}
-                        selected={selectedTab === 'history'}
-                    >Начисления</TabsItem>
-                    : null
-                }
+
             </HorizontalScroll>
         </Tabs>
     }

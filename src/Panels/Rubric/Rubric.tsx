@@ -1,15 +1,21 @@
 import React from 'react';
 import { Panel, Div, Card, Group, Progress, InfoRow } from '@vkontakte/vkui';
-import { base } from '../../Airtable';
+
 import "./Rubric.css";
-import Cover from '../Cover/Cover';
+import Cover from '../../components/Cover/Cover';
 import ReactMarkdown from 'react-markdown';
-import Navbar from '../Navbar/Navbar';
+import Navbar from '../../components/Navbar/Navbar';
 
 import RubricTabs from './RubricTabs';
 import ScheduleList from './ScheduleList';
-import HistoryList from '../HistoryList';
-import { parseDate, Time } from '../Helpers';
+import HistoryList from '../../components/HistoryList';
+
+
+import { AIR_CONFIG } from '../../config'
+import Airtable from '../../Airtable';
+import { parseDate, Time } from '../../Helpers';
+
+let base = new Airtable(AIR_CONFIG)
 
 
 interface iRubricPage {
@@ -18,6 +24,7 @@ interface iRubricPage {
 	rubric: any
 	go: (route: string, meta?: any) => void
 	rubricCellClickHandler: (dataTo: string, metaData: any) => void
+	getLessons: () => Promise<any[]>
 }
 
 
@@ -32,6 +39,7 @@ class Rubric extends React.Component<iRubricPage, any> {
 		goods: null,
 		history: []
 	}
+
 
 
 
@@ -68,64 +76,60 @@ class Rubric extends React.Component<iRubricPage, any> {
 	}
 
 
-
-
-
 	async fetchHistoryData(userID: number, rubricID: string, rubricTable: string) {
 		return base.list(rubricTable, { filterByFormula: `AND({VK-ID} = ${userID}, NOT({Рубрика}=BLANK()))` }).then((history: any[]) => {
 			return history.filter(item => item['Рубрика'][0] === rubricID)
 		}).catch(e => [])
 	}
 
-	getLessons = async () => {
-		if (!this.props.rubric) return;
 
-		return base.list('Тренировки', { view: 'Ближайшие', filterByFormula: `AND(NOT({Дата}=BLANK()), {RubricID}='${this.props.rubric.recID}')` })
-			.then((res: any[]) => {
+	async getLessons() {
+		return this.props.getLessons().then(res=>res.filter(el=>el['RubricID']===this.props.rubric.recID))
+		.then((res: any[]) => {
 
-				if (res.length === 0) return
-				let obj = {}
+			if (res.length === 0) return
+			let obj = {}
 
 
-				const days = {
-					0: 'вс',
-					1: 'пн',
-					2: 'вт',
-					3: 'ср',
-					4: 'чт',
-					5: 'пт',
-					6: 'сб'
+			const days = {
+				0: 'вс',
+				1: 'пн',
+				2: 'вт',
+				3: 'ср',
+				4: 'чт',
+				5: 'пт',
+				6: 'сб'
+			}
+
+			res.forEach(el => {
+				let key = parseDate(el['Дата']).replace(/^(\d+\s.+?)\s.+/gs, '$1');
+				let date = new Date(el['Дата']);
+
+				obj[key] = {
+					date: key,
+					day: days[date.getDay()],
+					items: []
 				}
 
-				res.forEach(el => {
-					let key = parseDate(el['Дата']).replace(/^(\d+\s.+?)\s.+/gs, '$1');
-					let date = new Date(el['Дата']);
 
-					obj[key] = {
-						date: key,
-						day: days[date.getDay()],
-						items: []
-					}
-
-
-				})
-
-
-
-
-				res.forEach(el => {
-					let key = parseDate(el['Дата']).replace(/^(\d+\s.+?)\s.+/gs, '$1');
-					el['День недели'] = days[new Date(el['Дата']).getDay()]
-					el['Время'] = Time(el['Дата'])
-					// el['Окончание'] = Time(el['Время окончания'])
-					el['Дата'] = key;
-					el['rubric'] = this.props.rubric;
-					obj[key]['items'].push(el)
-				})
-
-
-				return obj
 			})
+
+
+
+
+			res.forEach(el => {
+				let key = parseDate(el['Дата']).replace(/^(\d+\s.+?)\s.+/gs, '$1');
+				el['День недели'] = days[new Date(el['Дата']).getDay()]
+				el['Время'] = Time(el['Дата'])
+				// el['Окончание'] = Time(el['Время окончания'])
+				el['Дата'] = key;
+				el['rubric'] = this.props.rubric;
+				obj[key]['items'].push(el)
+			})
+
+			console.log(obj)
+			return obj
+		})
 	}
 
 
@@ -213,10 +217,6 @@ class Rubric extends React.Component<iRubricPage, any> {
 					? <Div style={{ paddingLeft: 'var(--wrapper-padding-2x)' }}><ReactMarkdown source={rubric['Описание']} /> </Div>
 					: ''
 				}
-
-
-
-				{(this.state.activeTab === 'history') ? <HistoryList history={this.state.history} /> : ''}
 
 
 				{(() => {

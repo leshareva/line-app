@@ -1,38 +1,51 @@
 import React from 'react'
-import { Group, Header, List, Cell, } from '@vkontakte/vkui';
-import { iModalData, iUser, iAchieve, iRubric } from '../../interfaces';
-import { base } from '../../Airtable';
+import { Group, List, Cell, } from '@vkontakte/vkui';
+import { iModalData, iUser, iAchieve } from '../../interfaces';
+import { AIR_CONFIG } from '../../config'
+import Airtable from '../../Airtable';
+
+
+let base = new Airtable(AIR_CONFIG)
 
 
 
-interface iTodoCardsList {
+interface iAchieveList {
     user: iUser
-    achieves: iAchieve[]
     openModal: (modal: { type: string, data: iModalData }) => void
     onButtonClick?: (route: string, meta: any) => void
-    rubrics: iRubric[]
+    fetchAchieves: ()=>Promise<any[]>
 }
 
-export default class TodoCardsList extends React.Component<iTodoCardsList, any> {
+export default class AchieveList extends React.Component<iAchieveList, any> {
     _isMounted: boolean = false
     constructor(props) {
         super(props)
 
         this.state = {
-            achieves: null
+            achieves: [],
+            isLoading: false
         }
+
+
     }
     async componentDidMount() {
         this._isMounted = true
-        let proms = this.props.achieves.map(achieve => this.fetchRubricHistory(achieve).then((userHistory: any[]) => {
+        this.setState({isLoading: true})
+        let achieves = await this.props.fetchAchieves()
+
+        let proms = achieves.map(achieve => this.fetchRubricHistory(achieve).then((userHistory: any[]) => {
             achieve.achievedItems = userHistory || []
             let acivedItem = userHistory.filter(el => el['Ачивка']).find(el => el['Ачивка'][0] === achieve.recID)
             achieve.acivedItem = acivedItem
             return achieve
         }))
+
+        let result = await Promise.all(proms);
+
         if (this._isMounted) {
             this.setState({
-                achieves: await Promise.all(proms)
+                achieves: result,
+                isLoading: false
             })
         }
 
@@ -63,14 +76,9 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
 
     render() {
 
-        let { achieves, openModal, rubrics, onButtonClick } = this.props
+        let { openModal } = this.props
+        let { achieves, isLoading } = this.state
 
-        // const checkIfTaskDone = (task: any): boolean => {
-        //     if (!task['Участники']) return false
-        //     const id = task['Участники'].find(el => el === user.recID)
-        //     if (id) return true
-        //     return false
-        // }
 
         const cells = (arr: iAchieve[]) => {
             return arr.map((achive, i) => {
@@ -83,9 +91,6 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
                         data: {
                             title: achive['Name'],
                             desc: achive['Описание'],
-                            onButtonClickHandler: () => onButtonClick('rubric', rubrics.find(el => el.recID === achive.RubricID)),
-                            buttonLabel: 'Перейти в рубрику'
-                            // body: (<Div>Вот мой прогресс</Div>)
                         }
                     })}
                     data-to='lesson'
@@ -103,8 +108,9 @@ export default class TodoCardsList extends React.Component<iTodoCardsList, any> 
             })
         }
 
-        return <Group header={<Header mode="secondary">Цели</Header>} separator="hide">
+        if(isLoading) return <div>…</div>
 
+        return <Group separator="hide" style={{marginBottom: 'calc(var(--wrapper-padding-2x) * 3)'}}>
             <List >
                 {cells(achieves.filter(el => !el.acivedItem).slice(0, 4))}
                 {cells(achieves.filter(el => el.acivedItem))}
